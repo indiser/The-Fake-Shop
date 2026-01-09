@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Home - The Fake Shop{% endblock %}
+
+{% block content %}
+
+<style>
+    /* 1. THE CARD LIFT */
+    .product-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.15) !important;
+    }
+
+    /* 2. THE RESPONSIVE IMAGE CONTAINER */
+    .img-container {
+        width: 100%; /* Take full width of the card */
+        overflow: hidden;
+        border-radius: 5px 5px 0 0;
+        position: relative;
+    }
+    
+    /* 3. THE MAGIC IMAGE RESIZING */
+    .product-card img {
+        width: 100%;
+        /* This is the magic line: */
+        aspect-ratio: 4 / 3; /* or 1/1 for squares. Forces standard shape. */
+        object-fit: cover;   /* This crops the image to fill the box without squishing */
+        object-position: center; /* Focus on the center of the image */
+        transition: transform 0.5s ease;
+    }
+    
+    .product-card:hover img {
+        transform: scale(1.05);
+    }
+
+    /* 4. BUTTONS */
+    .btn-touch {
+        transition: all 0.2s ease;
+    }
+    .btn-touch:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    .btn-touch:active { transform: scale(0.95); }
+</style>
+
+<h1 class="mb-4 fw-bold">Current Inventory</h1>
+<div class="d-flex justify-content-end mb-4">
+    <div class="d-flex align-items-center">
+        <label class="me-2 fw-bold text-muted small">Sort By:</label>
+        <select class="form-select form-select-sm" style="width: 200px;" 
+                onchange="window.location.href=this.value">
+            
+            <option value="{{ url_for('home', sort='newest', q=search_query) }}" 
+                    {% if current_sort == 'newest' %}selected{% endif %}>
+                Newest Arrivals
+            </option>
+            
+            <option value="{{ url_for('home', sort='price_low', q=search_query) }}" 
+                    {% if current_sort == 'price_low' %}selected{% endif %}>
+                Price: Low to High
+            </option>
+            
+            <option value="{{ url_for('home', sort='price_high', q=search_query) }}" 
+                    {% if current_sort == 'price_high' %}selected{% endif %}>
+                Price: High to Low
+            </option>
+            
+            <option value="{{ url_for('home', sort='oldest', q=search_query) }}" 
+                    {% if current_sort == 'oldest' %}selected{% endif %}>
+                Oldest First
+            </option>
+        </select>
+    </div>
+</div>
+<div class="row">
+    {% for product in pagination.items %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm product-card">
+            <a href="{{ url_for('product_detail', product_id=product.id) }}" class="text-decoration-none">
+                <div class="img-container">
+                    <img src="{{ product.get_watermarked_image() }}" class="card-img-top" alt="{{ product.title }}" loading="eager" style="object-fit: contain; height: 520px;">
+                    <!-- <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.title }}" loading="lazy" style="object-fit: contain; height: 520px;"> -->
+                </div>
+            </a>
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title fw-bold">{{ product.title }}</h5>
+                <p class="card-text text-muted small">{{ product.description }}</p>
+                    <div class="mb-2 d-flex align-items-center">
+                        {% set rating = product.get_rating() %}
+                        {% set count = product.reviews|length %}
+                        <span class="text-warning me-2">
+                            {% if count > 0 %}
+                                <span class="fw-bold text-dark me-1">{{ rating }}</span>
+                                {% for _ in range(rating|round|int) %}
+                                    <i class="bi bi-star-fill"></i>
+                                {% endfor %}
+                                {% for _ in range(5 - (rating|round|int)) %}
+                                    <i class="bi bi-star"></i>
+                                {% endfor %}
+                            {% else %}
+                                <small class="text-muted">No reviews</small>
+                            {% endif %}
+                        </span>
+                        {% if count > 0 %}
+                            <span class="text-muted small">({{ count }})</span>
+                        {% endif %}
+                    </div>
+                <h4 class="mt-auto text-primary fw-bold">${{ "%.2f"|format(product.price / 100) }}</h4>
+            </div>
+            {% if current_user.is_authenticated %}
+            <div class="card-footer bg-transparent border-top-0 p-3 d-flex justify-content-between align-items-center">
+                {% if not current_user.id==1 %}
+                <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-primary btn-touch px-4">Add to Cart</a>
+                {% endif %}
+                {% if current_user.id == 1 %}
+                <div class="btn-group">
+                    <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn btn-outline-warning btn-sm btn-touch">✏️ Edit</a>
+                    <a href="{{ url_for('delete_product', product_id=product.id) }}" class="btn btn-outline-danger btn-sm btn-touch" onclick="return confirm('Delete this item?');">🗑️ Delete</a>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if not pagination.items %}
+<div class="text-center py-5">
+    {% if search_query %}
+        <h3 class="text-muted">No results found for "{{ search_query }}"</h3>
+        <p>Try checking your spelling or search for something else.</p>
+        <a href="{{ url_for('home') }}" class="btn btn-outline-primary mt-2">Clear Search</a>
+    {% else %}
+        <div class="alert alert-warning">
+            <h3>No products found!</h3>
+            <p>Your shop is empty.</p>
+        </div>
+    {% endif %}
+</div>
+{% endif %}
+
+
+<div class="d-flex justify-content-center my-5">
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            
+            <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('home', page=pagination.prev_num, q=search_query) }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo; Previous</span>
+                </a>
+            </li>
+
+            <li class="page-item disabled">
+                <span class="page-link text-muted">
+                    Page {{ pagination.page }} of {{ pagination.pages }}
+                </span>
+            </li>
+
+            <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('home', page=pagination.next_num,q=search_query) }}" aria-label="Next">
+                    <span aria-hidden="true">Next &raquo;</span>
+                </a>
+            </li>
+            
+        </ul>
+    </nav>
+</div>
+{% endblock %}

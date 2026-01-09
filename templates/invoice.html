@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice #{{ order.id }}</title>
+    <style>
+        body { font-family: Helvetica, sans-serif; color: #333; line-height: 1.6; }
+        .header { margin-bottom: 40px; border-bottom: 2px solid #eee; padding-bottom: 20px; }
+        .company-name { font-size: 24px; font-weight: bold; color: #000; }
+        .invoice-details { text-align: right; float: right; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background-color: #f8f9fa; border-bottom: 2px solid #ddd; padding: 12px; text-align: left; }
+        td { border-bottom: 1px solid #eee; padding: 12px; }
+        
+        .totals { margin-top: 30px; text-align: right; }
+        .total-row { font-size: 18px; font-weight: bold; border-top: 2px solid #333; padding-top: 10px; }
+        
+        .footer { margin-top: 50px; font-size: 12px; text-align: center; color: #777; border-top: 1px solid #eee; padding-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="invoice-details">
+            <strong>Invoice #:</strong> {{ order.id }}<br>
+            <strong>Date:</strong> {{ order.date }}<br>
+            <strong>Status:</strong> {{ order.status }}
+        </div>
+        <div class="company-name">The Fake Shop</div>
+        <div>Indiser Startup<br>Heaven</div>
+    </div>
+
+    <div style="margin-bottom: 30px;">
+        <strong>Bill To:</strong><br>
+        {{ user.name }}<br>
+        {{ user.email }}
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.items %}
+            <tr>
+                <td>{{ item.product.title }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>${{ "%.2f" % (item.price_at_purchase / 100) }}</td>
+                <td>${{ "%.2f" % ((item.price_at_purchase * item.quantity) / 100) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totals">
+        <p><strong>Grand Total:</strong> ${{ "%.2f" % (order.total_price / 100) }}</p>
+    </div>
+
+    <div class="footer">
+        Thank you for your business! If you have any questions, please contact support@fakeshop.com.
+    </div>
+
+</body>
+</html>

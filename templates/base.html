@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}The Fake Shop{% endblock %}</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg border-bottom border-body" style="background-color: var(--bs-body-bg);">
+        <div class="container-fluid">
+            
+            <a class="navbar-brand fw-bold fs-4 me-4" href="{{ url_for('home') }}">
+                🛒 The Fake Shop
+            </a>
+
+            <form class="d-flex mx-auto flex-grow-1" action="{{ url_for('home') }}" method="GET" style="max-width: 500px;">
+                <div class="input-group">
+                    <input class="form-control" type="search" name="q" placeholder="Search products..." value="{{ search_query if search_query else '' }}">
+                    <button class="btn btn-outline-secondary" type="submit">🔍</button>
+                </div>
+            </form>
+            
+            <div class="d-flex align-items-center ms-auto gap-2">
+                {% if current_user.is_authenticated and not current_user.id==1%}
+                    <ui class="nav-item">
+                        <a class="nav-link" href="{{ url_for('my_wishlist') }}">
+                            <i class="bi bi-heart-fill heart-icon text-danger"></i> Wishlist
+                        </a>
+                    </ui>
+                {% endif %}
+                <a href="{{ url_for('home') }}" class="btn btn-outline-secondary btn-sm border-0 me-2" title="Home">
+                    <i class="bi bi-house-door-fill fs-5"></i>
+                </a>
+                <button class="btn btn-outline-secondary btn-sm border-0" id="darkModeToggle">
+                    🌙/☀️
+                </button>
+                {% if current_user.is_authenticated %}
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary border-0 d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
+                            <span class="d-none d-md-block fw-bold small">Hi, {{ current_user.name.split()[0] }}</span>
+                            <i class="bi bi-list fs-4"></i> </button>
+                        
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            
+                            <li><h6 class="dropdown-header">Account Settings</h6></li>
+                            
+                            {% if current_user.id == 1 %}
+                                <li>
+                                    <a class="dropdown-item text-danger" href="{{ url_for('admin_coupons') }}">
+                                        <i class="bi bi-ticket-perforated-fill"></i> Manage Coupons
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item fw-bold text-primary" href="{{ url_for('admin_dashboard') }}">
+                                        <i class="bi bi-graph-up-arrow"></i> Dashboard
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-warning fw-bold" href="{{ url_for('admin_orders') }}">
+                                        📦 Manage Orders
+                                        {% if pending_orders_count > 0 %}
+                                            <span class="position-absolute top-10 start-90 translate-middle badge rounded-pill bg-danger" 
+                                                style="font-size: 0.6rem;">
+                                            {{ pending_orders_count }}
+                                            </span>
+                                        {% endif %}
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('add_product') }}">
+                                        ➕ Add Product
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ url_for('export_csv') }}" class="dropdown-item text-success fw-bold ">
+                                            <i class="bi bi-file-earmark-spreadsheet"></i> Export Sales
+                                    </a>
+                                </li>
+                                
+                                <li><hr class="dropdown-divider"></li>
+                            {% endif %}
+
+                            {% if current_user.id != 1 %}
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('profile') }}">
+                                        👤 My Account  </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('my_orders') }}">
+                                        📄 My Orders
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('view_cart') }}">
+                                        🛒 View Cart
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                            {% endif %}
+
+                            <li>
+                                <a class="dropdown-item text-danger" href="{{ url_for('logout') }}">
+                                    🚪 Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                {% else %}
+                    <div class="vr mx-2"></div>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-sm">Login</a>
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">Register</a>
+                {% endif %}
+
+            </div>
+
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <script>
+        const toggleButton = document.getElementById('darkModeToggle');
+        const htmlElement = document.documentElement;
+
+        // 1. Check LocalStorage on load
+        if (localStorage.getItem('theme') === 'dark') {
+            htmlElement.setAttribute('data-bs-theme', 'dark');
+        }
+
+        // 2. Toggle on click
+        toggleButton.addEventListener('click', () => {
+            if (htmlElement.getAttribute('data-bs-theme') === 'dark') {
+                htmlElement.setAttribute('data-bs-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            } else {
+                htmlElement.setAttribute('data-bs-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

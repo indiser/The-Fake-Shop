@@ -1,0 +1,13 @@
+Flask
+Flask-SQLAlchemy
+Flask-Login
+Flask-WTF
+WTForms
+Flask-Mail
+python-dotenv
+Werkzeug
+cloudinary
+itsdangerous
+email-validator
+xhtml2pdf
+gunicorn

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}{% if is_edit %} Edit Product {% else %} Add New Product {% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">{% if is_edit %} ✏️ Edit Product {% else %} 📦 Add Inventory {% endif %}</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        <label class="form-label">Product Title</label>
+                        {{ form.title(class="form-control") }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Price (in Dollars)</label>
+                        {{ form.price(class="form-control", placeholder="9.99") }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        {{ form.description(class="form-control") }}
+                    </div>
+
+                    <h5 class="fw-bold mb-3">Product Image</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Option 1: Paste Image Link</label>
+                        {{ form.image_url(class="form-control", placeholder="https://example.com/shoe.jpg") }}
+                        <div class="form-text opacity-75">Paste a link from Unsplash or Google Images.</div>
+                    </div>
+                    <div class="text-center my-2 text-muted fw-bold">- OR -</div>
+                    <div class="mb-3">
+                        <label class="form-label">Option 2: Upload File</label>
+                        {{ form.image_file(class="form-control") }}
+                    </div>
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-success") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="text-center mt-3">
+            <a href="{{ url_for('home') }}" class="btn btn-outline-secondary">Back to Shop</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
