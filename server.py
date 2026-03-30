@@ -276,8 +276,8 @@ class Review(db.Model):
 
 
 
-# with app.app_context():
-#     db.create_all()
+with app.app_context():
+    db.create_all()
 
 def send_reset_email(user):
     s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
