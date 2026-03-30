@@ -11,3 +11,4 @@ itsdangerous
 email-validator
 xhtml2pdf
 gunicorn
+uvicorn
