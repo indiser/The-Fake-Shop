@@ -12,3 +12,4 @@ email-validator
 xhtml2pdf
 gunicorn
 uvicorn
+psycopg2
