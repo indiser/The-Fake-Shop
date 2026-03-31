@@ -310,10 +310,10 @@ If you did not make this request then simply ignore this email and no changes wi
     # mail.send(msg)
     Thread(target=send_async_email, args=(app, msg)).start()
 
-def send_order_confirmation_email_messege(user, order):
+def send_order_confirmation_email_messege(user_email,user_name, order):
     msg = Message(f'Order Confirmation - #{order.id}', 
                   sender=app.config['MAIL_USERNAME'], 
-                  recipients=[user.email])
+                  recipients=[user_email])
     
     # 1. Build the receipt text
     # We loop through the order items to list them
@@ -321,7 +321,7 @@ def send_order_confirmation_email_messege(user, order):
     for item in order.items:
         items_list += f"- {item.product.title}: ${'%.2f' % (item.product.price / 100)} x {item.quantity}\n"
         
-    msg.body = f'''Hello {user.name},
+    msg.body = f'''Hello {user_name},
 
 Thank you for your order! Here is your receipt:
 
@@ -335,16 +335,21 @@ Your items will be shipped shortly.
 Thank you for shopping with The Fake Shop!
 '''
     # 2. Send it (Async is better, but this works for now)
-    mail.send(msg)
+    # mail.send(msg)
+    Thread(target=send_async_email, args=(app, msg)).start()
 
-def send_order_confirmation_email_pdf(user, order):
+
+def send_order_confirmation_email_pdf(user_email, user_name, user_obj,order):
     msg = Message(f'Invoice - Order #{order.id}', 
                   sender=app.config['MAIL_USERNAME'], 
-                  recipients=[user.email])
-    msg.body = f"Hello {user.name},\n\nThank you for your purchase. Please find your invoice attached.\n\nBest,\nThe Fake Shop Team"
-    html_content = render_template('invoice.html', order=order, user=user)
+                  recipients=[user_email])
+    msg.body = f"Hello {user_name},\n\nThank you for your purchase. Please find your invoice attached.\n\nBest,\nThe Fake Shop Team"
+    html_content = render_template('invoice.html', order=order, user=user_obj)
     pdf_buffer = BytesIO()
     pisa_status = pisa.CreatePDF(html_content, dest=pdf_buffer)
+    if pisa_status.err:
+        print(f"❌ ERROR: PDF Generation failed: {pisa_status.err}")
+        return # Abort sending if PDF fails
     pdf_buffer.seek(0)
     msg.attach(f"Invoice_{order.id}.pdf", "application/pdf", pdf_buffer.read())
     # mail.send(msg)
@@ -978,18 +983,20 @@ def checkout():
     # We must add the order to the session to generate an ID
     db.session.commit() # Now new_order.id exists!
     session.pop('cart', None)
-    session.pop('coupon_code', None)     # <--- RESET
+    session.pop('coupon_code', None)
     session.pop('coupon_percent', None)
+    safe_email = current_user.email
+    safe_name = current_user.name
     flash(f'Order placed! You saved ${"%.2f" % (discount_amount/100)}.', 'success')
     try:
-        send_order_confirmation_email_messege(current_user,new_order)
+        send_order_confirmation_email_messege(safe_email,safe_name,new_order)
         send_admin_alert(new_order)
         flash("Messege has been sent successfully","success")
     except Exception as e:
         flash(f"Basic confirmation email failed to send: {e}", "warning")
 
     try:
-        send_order_confirmation_email_pdf(current_user, new_order)
+        send_order_confirmation_email_pdf(safe_email,safe_name, new_order)
         flash("PDF Invoice has been sent successfully","success")
     except Exception as e:
         # Don't crash the app if email fails (e.g., wifi blip)
@@ -1231,4 +1238,4 @@ def cancel_order(order_id):
     return redirect(url_for('my_orders'))
 
 if __name__=="__main__":
-    app.run()
+    app.run(debug=True)
