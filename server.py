@@ -996,7 +996,7 @@ def checkout():
         flash(f"Basic confirmation email failed to send: {e}", "warning")
 
     try:
-        send_order_confirmation_email_pdf(safe_email,safe_name, ,current_user,new_order)
+        send_order_confirmation_email_pdf(safe_email,safe_name, current_user,new_order)
         flash("PDF Invoice has been sent successfully","success")
     except Exception as e:
         # Don't crash the app if email fails (e.g., wifi blip)
