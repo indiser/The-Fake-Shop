@@ -276,8 +276,8 @@ class Review(db.Model):
 
 
 
-with app.app_context():
-    db.create_all()
+# with app.app_context():
+#     db.create_all()
 
 def send_reset_email(user):
     s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
@@ -985,10 +985,9 @@ def checkout():
         send_order_confirmation_email_messege(current_user,new_order)
         send_admin_alert(new_order)
         flash("Messege has been sent successfully","success")
-    except:
-        flash(f"Email failed to send: {e}","warning")
+    except Exception as e:
+        flash(f"Basic confirmation email failed to send: {e}", "warning")
 
-    sleep(10)
     try:
         send_order_confirmation_email_pdf(current_user, new_order)
         flash("PDF Invoice has been sent successfully","success")
@@ -996,8 +995,7 @@ def checkout():
         # Don't crash the app if email fails (e.g., wifi blip)
         flash(f"Pdf Invoice failed to send: {e}","warning")
 
-    # 5. CLEAR THE CART (The Backpack is empty)
-    # session.pop('cart',None)
+    
     flash('Order placed successfully! Check your email for the receipt.', 'success')
     return render_template('success.html', order_id=new_order.id)
 
@@ -1010,12 +1008,10 @@ def add_product_image(product_id):
         flash("Product not found", "danger")
         return redirect(url_for('home'))
 
-    # 1. CHECK FOR FILE
     file = request.files.get('file')
     
     if file and file.filename != "":
         try:
-            # 2. UPLOAD TO CLOUDINARY (Same logic as add_product)
             upload_result = cloudinary.uploader.upload(file)
             image_url = upload_result['secure_url']
             
@@ -1048,21 +1044,14 @@ def delete_product_image(image_id):
 @app.route('/remove/<int:product_id>')
 @login_required
 def remove_from_cart(product_id):
-    # 1. Get the cart
     cart = session.get('cart', {})
     
-    # 2. Convert ID to string (because JSON keys are strings)
     product_id_str = str(product_id)
     
-    # 3. Check if it exists, then remove it
-    # .pop(key, None) removes the key if it exists, and does nothing if it doesn't.
-    # It prevents the app from crashing if the user clicks remove twice.
     cart.pop(product_id_str, None)
     
-    # 4. Save the update back to the session
     session['cart'] = cart
     
-    # 5. Refresh the cart page
     return redirect(url_for('view_cart'))
 
 #Go to my profile
@@ -1072,11 +1061,9 @@ def profile():
     form = UpdateProfileForm()
 
     if form.validate_on_submit():
-        # 1. Update basic info
         current_user.name = form.name.data
         current_user.email = form.email.data
         
-        # 2. Update password ONLY if they typed something new
         if form.password.data:
             hashed_pw = generate_password_hash(
                 form.password.data,
@@ -1089,7 +1076,6 @@ def profile():
         # flash("Your profile has been updated!")
         return redirect(url_for('home'))
 
-    # 3. Pre-populate the form with current data (The "GET" request)
     if request.method == 'GET':
         form.name.data = current_user.name
         form.email.data = current_user.email
@@ -1109,8 +1095,6 @@ def reset_request():
         if user:
             send_reset_email(user)
             
-        # Security Best Practice: Always say "If that email exists..." 
-        # so hackers can't fish for valid email addresses.
         flash('If an account with that email exists, an email has been sent with instructions.', 'info')
         return redirect(url_for('login'))
         
