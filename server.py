@@ -29,6 +29,7 @@ import cloudinary.uploader
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
+from threading import Thread
 
 load_dotenv()
 
@@ -279,6 +280,17 @@ class Review(db.Model):
 # with app.app_context():
 #     db.create_all()
 
+
+def send_async_email(app, msg):
+    # We must pass the app context so Flask-Mail knows our config in the background
+    with app.app_context():
+        try:
+            mail.send(msg)
+            print("Email dispatched successfully.")
+        except Exception as e:
+            print(f"Background email failed: {e}")
+
+
 def send_reset_email(user):
     s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     # Token expires in 1800 seconds (30 minutes)
@@ -295,7 +307,8 @@ def send_reset_email(user):
 
 If you did not make this request then simply ignore this email and no changes will be made.
 '''
-    mail.send(msg)
+    # mail.send(msg)
+    Thread(target=send_async_email, args=(app, msg)).start()
 
 def send_order_confirmation_email_messege(user, order):
     msg = Message(f'Order Confirmation - #{order.id}', 
@@ -325,33 +338,17 @@ Thank you for shopping with The Fake Shop!
     mail.send(msg)
 
 def send_order_confirmation_email_pdf(user, order):
-    # 1. Setup the Email
     msg = Message(f'Invoice - Order #{order.id}', 
                   sender=app.config['MAIL_USERNAME'], 
                   recipients=[user.email])
-    
     msg.body = f"Hello {user.name},\n\nThank you for your purchase. Please find your invoice attached.\n\nBest,\nThe Fake Shop Team"
-
-    # 2. Generate PDF from HTML
-    # We render the HTML template with the order data
     html_content = render_template('invoice.html', order=order, user=user)
-    
-    # We create a memory buffer to hold the PDF data (instead of saving a file to disk)
     pdf_buffer = BytesIO()
-    
-    # Convert HTML -> PDF
     pisa_status = pisa.CreatePDF(html_content, dest=pdf_buffer)
-    
-    # 3. Attach PDF if generation succeeded
-    # if not pisa_status.err:
-    #     print(f"⚠️ PDF GENERATION ERROR: {pisa_status.err}")
-        # Go back to the start of the file in memory
     pdf_buffer.seek(0)
-        
-        # Attach it: (Filename, MimeType, Data)
     msg.attach(f"Invoice_{order.id}.pdf", "application/pdf", pdf_buffer.read())
-        
-    mail.send(msg)
+    # mail.send(msg)
+    Thread(target=send_async_email, args=(app, msg)).start()
 
 
 def send_shipped_email(user, order):
@@ -370,7 +367,8 @@ Date Shipped: {datetime.now().strftime('%Y-%m-%d')}
 You will receive your items shortly.
 Thank you for shopping with The Fake Shop!
 '''
-    mail.send(msg)
+    # mail.send(msg)
+    Thread(target=send_async_email, args=(app, msg)).start()
 
 def send_cancel_email(user, order_id, total_price):
     msg = Message(f'Order #{order_id} Cancelled', 
@@ -387,7 +385,8 @@ Refund Amount: ${'%.2f' % (total_price / 100)}
 The refund will be processed within 3-5 business days.
 Thank you for shopping with The Fake Shop!
 '''
-    mail.send(msg)
+    # mail.send(msg)
+    Thread(target=send_async_email, args=(app, msg)).start()
 
 def send_admin_alert(order):
     # 1. Get the Admin User (ID #1)
@@ -411,7 +410,8 @@ Items:
         
     msg.body += "\nLogin to your dashboard to ship this order."
     
-    mail.send(msg)
+    # mail.send(msg)
+    Thread(target=send_async_email, args=(app, msg)).start()
 
 # This runs before EVERY template is rendered
 @app.context_processor
@@ -1231,4 +1231,4 @@ def cancel_order(order_id):
     return redirect(url_for('my_orders'))
 
 if __name__=="__main__":
-    app.run(debug=True)
+    app.run()
