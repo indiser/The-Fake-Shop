@@ -277,8 +277,8 @@ class Review(db.Model):
 
 
 
-# with app.app_context():
-#     db.create_all()
+with app.app_context():
+    db.create_all()
 
 
 def send_async_email(app, msg):
