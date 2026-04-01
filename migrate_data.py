@@ -5,13 +5,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# 1. Connect to your local SQLite database
-# Update this path if your Product.db is inside an 'instance' folder (e.g., 'instance/Product.db')
 SQLITE_PATH = 'instance/Product.db' 
-
-# 2. Connect to your live Render PostgreSQL database
-# PASTE YOUR EXTERNAL DATABASE URL HERE
-RENDER_PG_URL = os.environ.get("RENDER_EXTRENEL_DB_URL")
+NEON_PG_URL = os.environ.get("NEON_POSTGRES_DB_URL")
 
 def run_migration():
     print("Connecting to databases...")
@@ -22,7 +17,7 @@ def run_migration():
         sqlite_cursor = sqlite_conn.cursor()
         
         # Open remote connection
-        pg_conn = psycopg2.connect(RENDER_PG_URL)
+        pg_conn = psycopg2.connect(NEON_PG_URL)
         pg_cursor = pg_conn.cursor()
         
         print("Extracting products from local SQLite...")
