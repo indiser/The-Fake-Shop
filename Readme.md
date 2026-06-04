@@ -180,8 +180,8 @@ This project showcases a **pixel-perfect recreation of early 2000s web design** 
 
 1. **Clone or download the repository**
 ```bash
-git clone https://github.com/yourusername/fake-market.git
-cd fake-market
+git clone https://github.com/indiser/The-Fake-Shop.git
+cd The-Fake-Shop
 ```
 
 2. **Create a virtual environment**
