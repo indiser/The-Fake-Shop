@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════════════════════════════════════
+     HERO PROMO BANNER
+     ═══════════════════════════════════════════ -->
+{% if show_promo %}
+
+<div style="margin-bottom: 16px; background: linear-gradient(135deg, #0A2888 0%, #1858DC 40%, #0A5A1A 100%); border: 2px solid; border-color: #5A9AF8 #040E40 #040E40 #5A9AF8; box-shadow: 3px 3px 0 #010818; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; position: relative; overflow: hidden;">
+
+  <!-- Background pixel grid decoration -->
+  <div style="position: absolute; inset: 0; background-image: repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(255,255,255,0.02) 20px, rgba(255,255,255,0.02) 21px), repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(255,255,255,0.02) 20px, rgba(255,255,255,0.02) 21px); pointer-events: none;"></div>
+
+  <div style="position: relative; z-index: 1; flex: 1; min-width: 260px;">
+    <div style="font-family: 'Press Start 2P', monospace; font-size: 10px; color: #FFD050; letter-spacing: 2px; margin-bottom: 8px; text-shadow: 1px 1px 0 rgba(0,0,0,0.6);">★ LIMITED TIME OFFER ★</div>
+    <h1 style="font-family: 'VT323', monospace; font-size: 52px; color: #fff; line-height: 1; margin-bottom: 8px; text-shadow: 3px 3px 0 rgba(0,0,0,0.5);">MEGA DEALS<br>ARE LIVE!</h1>
+    <p style="font-size: 14px; color: #C8D8F8; margin-bottom: 14px; max-width: 360px;">Browse our full catalog of products at the best prices online. Free shipping on orders over $50!</p>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <a href="{{ url_for('home') }}" class="btn btn-primary btn-lg" style="text-decoration: none; font-size: 15px;">🔥 SHOP NOW</a>
+      <a href="{{ url_for('home', sort='price_low') }}" class="btn btn-lg" style="text-decoration: none; background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4) rgba(255,255,255,0.1) rgba(255,255,255,0.1) rgba(255,255,255,0.4); color: #fff; font-size: 15px;">💰 Best Deals</a>
+    </div>
+  </div>
+
+  <div style="position: relative; z-index: 1; flex: auto; display: flex; justify-content: center; min-width: 380px;">
+    <div style="display: flex; gap: 8px; font-family: 'VT323', monospace; text-align: center; align-items: center;">
+      
+      <div style="background: #050505; border: 2px solid; border-color: #444 #000 #000 #444; padding: 12px 18px; box-shadow: inset 4px 4px 10px rgba(0,0,0,0.9), 2px 2px 0 rgba(0,0,0,0.3);">
+        <div id="t-days" style="font-size: 56px; color: #FFD050; line-height: 0.85; text-shadow: 0 0 12px rgba(255,208,80,0.3);">00</div>
+        <div style="font-size: 13px; color: #888; letter-spacing: 2px; font-family: 'Trebuchet MS', sans-serif; font-weight: bold; margin-top: 8px;">DAYS</div>
+      </div>
+      
+      <div style="font-size: 48px; color: #fff; line-height: 1; font-weight: bold; padding-bottom: 24px; text-shadow: 2px 2px 0 rgba(0,0,0,0.5);">:</div>
+      
+      <div style="background: #050505; border: 2px solid; border-color: #444 #000 #000 #444; padding: 12px 18px; box-shadow: inset 4px 4px 10px rgba(0,0,0,0.9), 2px 2px 0 rgba(0,0,0,0.3);">
+        <div id="t-hours" style="font-size: 56px; color: #FFD050; line-height: 0.85; text-shadow: 0 0 12px rgba(255,208,80,0.3);">00</div>
+        <div style="font-size: 13px; color: #888; letter-spacing: 2px; font-family: 'Trebuchet MS', sans-serif; font-weight: bold; margin-top: 8px;">HRS</div>
+      </div>
+      
+      <div style="font-size: 48px; color: #fff; line-height: 1; font-weight: bold; padding-bottom: 24px; text-shadow: 2px 2px 0 rgba(0,0,0,0.5);">:</div>
+      
+      <div style="background: #050505; border: 2px solid; border-color: #444 #000 #000 #444; padding: 12px 18px; box-shadow: inset 4px 4px 10px rgba(0,0,0,0.9), 2px 2px 0 rgba(0,0,0,0.3);">
+        <div id="t-mins" style="font-size: 56px; color: #FFD050; line-height: 0.85; text-shadow: 0 0 12px rgba(255,208,80,0.3);">00</div>
+        <div style="font-size: 13px; color: #888; letter-spacing: 2px; font-family: 'Trebuchet MS', sans-serif; font-weight: bold; margin-top: 8px;">MIN</div>
+      </div>
+      
+      <div style="font-size: 48px; color: #fff; line-height: 1; font-weight: bold; padding-bottom: 24px; text-shadow: 2px 2px 0 rgba(0,0,0,0.5);">:</div>
+      
+      <div style="background: #110505; border: 2px solid; border-color: #662222 #110000 #110000 #662222; padding: 12px 18px; box-shadow: inset 4px 4px 10px rgba(0,0,0,0.9), 2px 2px 0 rgba(0,0,0,0.3);">
+        <div id="t-secs" style="font-size: 56px; color: #FF5050; line-height: 0.85; text-shadow: 0 0 12px rgba(255,80,80,0.4);">00</div>
+        <div style="font-size: 13px; color: #AA6666; letter-spacing: 2px; font-family: 'Trebuchet MS', sans-serif; font-weight: bold; margin-top: 8px;">SEC</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- Promo badges -->
+  <div style="position: relative; z-index: 1; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0;">
+    <div style="background: linear-gradient(135deg, #E85D04, #FF9010); border: 2px solid #FFB840; padding: 10px 16px; text-align: center; box-shadow: 3px 3px 0 rgba(0,0,0,0.4); transform: rotate(2deg);">
+      <div style="font-family: 'VT323', monospace; font-size: 32px; color: #fff; line-height: 1; text-shadow: 2px 2px 0 rgba(0,0,0,0.4);">SAVE BIG</div>
+      <div style="font-size: 11px; color: #FFE8C0; font-weight: bold; letter-spacing: 1px;">ON TOP ITEMS</div>
+    </div>
+    <div style="background: linear-gradient(135deg, #008800, #00CC00); border: 2px solid #00FF00; padding: 7px 14px; text-align: center; box-shadow: 3px 3px 0 rgba(0,0,0,0.4); transform: rotate(-1.5deg);">
+      <div style="font-family: 'VT323', monospace; font-size: 22px; color: #fff; line-height: 1; text-shadow: 1px 1px 0 rgba(0,0,0,0.4);">FREE SHIPPING $50+</div>
+    </div>
+  </div>
+</div>
+{% endif %}
+<!-- ═══════════════════════════════════════════
+     TOOLBAR: Sort + Results Count
+     ═══════════════════════════════════════════ -->
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;">
+
+  <div class="section-head" style="font-size: 22px; margin-bottom: 0;">
+    {% if search_query %}
+      🔍 Results: "{{ search_query }}"
+    {% else %}
+      📦 Current Inventory
+    {% endif %}
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 8px;">
+    <label style="font-size: 12px; font-weight: bold; color: var(--text-muted); white-space: nowrap;">SORT BY:</label>
+    <select class="retro-select" onchange="window.location.href=this.value" aria-label="Sort products">
+      <option value="{{ url_for('home', sort='newest', q=search_query) }}" {% if current_sort == 'newest' %}selected{% endif %}>✨ Newest Arrivals</option>
+      <option value="{{ url_for('home', sort='price_low', q=search_query) }}" {% if current_sort == 'price_low' %}selected{% endif %}>💰 Price: Low → High</option>
+      <option value="{{ url_for('home', sort='price_high', q=search_query) }}" {% if current_sort == 'price_high' %}selected{% endif %}>💎 Price: High → Low</option>
+      <option value="{{ url_for('home', sort='oldest', q=search_query) }}" {% if current_sort == 'oldest' %}selected{% endif %}>📅 Oldest First</option>
+    </select>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PRODUCT GRID
+     ═══════════════════════════════════════════ -->
+{% if pagination.items %}
+
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px;">
+  {% for product in pagination.items %}
+
+  <div class="product-card">
+
+    <!-- NEW badge for latest products -->
+    {% if loop.index <= 3 and current_sort == 'newest' %}
+    <div style="position: absolute; top: 8px; left: 8px; z-index: 10;">
+      <span class="badge badge-new">✨ NEW</span>
+    </div>
+    {% endif %}
+
+    <!-- Product Image -->
+    <a href="{{ url_for('product_detail', product_id=product.id) }}" style="text-decoration: none; display: block;">
+      <div class="product-card-image">
+        <img
+          src="{{ product.get_watermarked_image() }}"
+          alt="{{ product.title }}"
+          loading="lazy"
+          title="{{ product.title }}">
+      </div>
+    </a>
+
+    <!-- Card Body -->
+    <div style="padding: 10px 12px; flex: 1; display: flex; flex-direction: column; gap: 6px;">
+
+      <!-- Product Title -->
+      <a href="{{ url_for('product_detail', product_id=product.id) }}" style="text-decoration: none; color: var(--link); font-weight: bold; font-size: 14px; line-height: 1.3; display: block;">
+        {{ product.title }}
+      </a>
+
+      <!-- Description (truncated) -->
+      <p style="font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+        {{ product.description }}
+      </p>
+
+      <!-- Rating -->
+      <div style="display: flex; align-items: center; gap: 6px;">
+        {% set rating = product.get_rating() %}
+        {% set count  = product.reviews|length %}
+        {% if count > 0 %}
+          <span class="stars" style="font-size: 13px;">
+            {% for _ in range(rating|round|int) %}★{% endfor %}{% for _ in range(5 - (rating|round|int)) %}☆{% endfor %}
+          </span>
+          <span style="font-size: 11px; font-weight: bold; color: var(--text-muted);">{{ rating }}</span>
+          <span style="font-size: 11px; color: var(--link);">({{ count }} reviews)</span>
+        {% else %}
+          <span style="font-size: 11px; color: var(--text-muted); font-style: italic;">No reviews yet</span>
+        {% endif %}
+      </div>
+
+      <!-- Price -->
+      <div style="margin-top: auto; padding-top: 4px; border-top: 1px dashed var(--border-lo);">
+        <div class="price" style="font-size: 20px;">${{ "%.2f"|format(product.price / 100) }}</div>
+        <div style="font-size: 11px; color: var(--xp-lime); font-weight: bold;">✅ In Stock · Free Ship $50+</div>
+      </div>
+    </div>
+
+    <!-- Card Footer -->
+    {% if current_user.is_authenticated %}
+    <div style="padding: 8px 10px; border-top: 1px solid var(--border-lo); background: var(--bg-dark); display: flex; gap: 6px; align-items: center;">
+      {% if current_user.id != 1 %}
+        <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-primary btn-sm btn-full" style="text-decoration: none;">
+          🛒 Add to Cart
+        </a>
+        <a href="{{ url_for('toggle_wishlist', product_id=product.id) }}" class="btn btn-sm" style="text-decoration: none; padding: 3px 8px;" title="Add to Wishlist">❤️</a>
+      {% endif %}
+      {% if current_user.id == 1 %}
+        <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn btn-sm" style="text-decoration: none; flex: 1;">✏️ Edit</a>
+        <a href="{{ url_for('delete_product', product_id=product.id) }}" class="btn btn-danger btn-sm" style="text-decoration: none;" onclick="return confirm('Delete this product?');">🗑️</a>
+      {% endif %}
+    </div>
+    {% else %}
+    <div style="padding: 8px 10px; border-top: 1px solid var(--border-lo); background: var(--bg-dark);">
+      <a href="{{ url_for('login') }}" class="btn btn-blue btn-sm btn-full" style="text-decoration: none;">🔐 Sign In to Purchase</a>
+    </div>
+    {% endif %}
+  </div>
+
+  {% endfor %}
+</div>
+
+{% else %}
+<!-- ─── EMPTY STATE ─────────────────────────── -->
+<div class="panel" style="text-align: center; padding: 50px 20px; margin-top: 10px;">
+  {% if search_query %}
+    <div style="font-family: 'VT323', monospace; font-size: 52px; color: var(--text-muted); margin-bottom: 8px;">🔍</div>
+    <h2 style="font-family: 'VT323', monospace; font-size: 32px; margin-bottom: 8px;">No results for "{{ search_query }}"</h2>
+    <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Try checking your spelling or searching for something else.</p>
+    <a href="{{ url_for('home') }}" class="btn btn-blue" style="text-decoration: none;">← Clear Search</a>
+  {% else %}
+    <div style="font-family: 'VT323', monospace; font-size: 52px; color: var(--text-muted); margin-bottom: 8px;">📦</div>
+    <h2 style="font-family: 'VT323', monospace; font-size: 32px; margin-bottom: 8px;">Shop is Empty!</h2>
+    <p style="color: var(--text-muted); font-size: 13px;">No products are listed yet.</p>
+    {% if current_user.id == 1 %}
+      <a href="{{ url_for('add_product') }}" class="btn btn-primary" style="text-decoration: none; margin-top: 12px; display: inline-flex;">➕ Add First Product</a>
+    {% endif %}
+  {% endif %}
+</div>
+{% endif %}
+
+<!-- ═══════════════════════════════════════════
+     PAGINATION
+     ═══════════════════════════════════════════ -->
+{% if pagination.pages > 1 %}
+<div style="display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 24px; flex-wrap: wrap;">
+
+  <a class="page-btn {% if not pagination.has_prev %}disabled{% endif %}"
+     href="{{ url_for('home', page=pagination.prev_num, q=search_query, sort=current_sort) }}"
+     aria-label="Previous page">
+    ← Previous
+  </a>
+
+  {% for page_num in pagination.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+    {% if page_num %}
+      <a class="page-btn {% if page_num == pagination.page %}current{% endif %}"
+         href="{{ url_for('home', page=page_num, q=search_query, sort=current_sort) }}">
+        {{ page_num }}
+      </a>
+    {% else %}
+      <span style="padding: 4px 6px; color: var(--text-muted); font-weight: bold;">…</span>
+    {% endif %}
+  {% endfor %}
+
+  <a class="page-btn {% if not pagination.has_next %}disabled{% endif %}"
+     href="{{ url_for('home', page=pagination.next_num, q=search_query, sort=current_sort) }}"
+     aria-label="Next page">
+    Next →
+  </a>
+
+  <span style="font-size: 12px; color: var(--text-muted); margin-left: 8px;">
+    Page {{ pagination.page }} of {{ pagination.pages }}
+  </span>
+</div>
+{% endif %}
+
+{% if show_promo %}
+<script>
+  // Pull the exact deadline generated by the Python backend
+  const endTime = new Date("{{ promo_end_time }}").getTime();
+  
+  const timer = setInterval(function() {
+    const now = new Date().getTime();
+    const distance = endTime - now;
+    
+    // If the timer runs out while they are looking at the page, nuke the banner
+    if (distance < 0) {
+      clearInterval(timer);
+      document.getElementById("promo-banner").style.display = "none";
+      return;
+    }
+    
+    // Math to convert milliseconds into standard time units
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    
+    // Inject the numbers into the DOM, padded with zero (e.g., "09" instead of "9")
+    document.getElementById("t-days").innerText = days.toString().padStart(2, '0');
+    document.getElementById("t-hours").innerText = hours.toString().padStart(2, '0');
+    document.getElementById("t-mins").innerText = minutes.toString().padStart(2, '0');
+    document.getElementById("t-secs").innerText = seconds.toString().padStart(2, '0');
+  }, 1000);
+</script>
+{% endif %}
+
+{% endblock %}

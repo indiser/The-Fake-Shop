@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}My Orders{% endblock %}
+
+{% block content %}
+
+<div class="section-head" style="margin-bottom: 14px;">📄 My Order History</div>
+
+{% for order in orders %}
+<div class="panel" style="margin-bottom: 12px; padding: 0;">
+
+  <!-- Order Header (XP titlebar style) -->
+  <div style="background: linear-gradient(to bottom, #2A3A50 0%, #1A2840 100%); padding: 6px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <span style="color: #C0D0F0; font-weight: bold; font-size: 13px;">Order <code style="font-family: 'Courier New'; color: #FFD080; font-size: 13px;">#{{ order.id }}</code></span>
+      <span style="color: #8899AA; font-size: 12px;">{{ order.date }}</span>
+
+      {% if order.status == 'Cancelled' %}
+        <span class="badge badge-hot">✕ Cancelled</span>
+      {% elif order.status == 'Shipped' %}
+        <span class="badge badge-sale">🚚 Shipped</span>
+      {% else %}
+        <span class="badge badge-pend">⏳ Pending</span>
+      {% endif %}
+    </div>
+
+    {% if order.status == 'Pending' %}
+    <a href="{{ url_for('cancel_order', order_id=order.id) }}"
+       class="btn btn-danger btn-sm"
+       style="text-decoration: none;"
+       onclick="return confirm('Cancel order #{{ order.id }}? This cannot be undone.');">
+      ✕ Cancel Order
+    </a>
+    {% endif %}
+  </div>
+
+  <!-- Order Body -->
+  <div style="padding: 12px 14px; display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; flex-wrap: wrap;">
+
+    <!-- Items List -->
+    <div style="flex: 1; min-width: 200px;">
+      <div style="font-size: 11px; font-weight: bold; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">Items Ordered:</div>
+      <ul style="margin: 0; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 4px;">
+        {% for item in order.items %}
+        <li style="font-size: 13px; display: flex; align-items: center; gap: 6px;">
+          <span style="color: var(--xp-blue); font-weight: bold;">{{ item.quantity }}×</span>
+          <span>Product #{{ item.product_id }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Order Total + Invoice -->
+    <div style="text-align: right; flex-shrink: 0;">
+      <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Order Total:</div>
+      <div class="price" style="font-size: 22px; margin-bottom: 8px;">${{ "%.2f"|format(order.total_price / 100) }}</div>
+      <a href="{{ url_for('invoice', order_id=order.id) }}" class="btn btn-sm" style="text-decoration: none;" target="_blank">🖨️ Print Invoice</a>
+    </div>
+  </div>
+</div>
+
+{% else %}
+<!-- Empty Orders -->
+<div class="panel" style="text-align: center; padding: 60px 20px;">
+  <div style="font-size: 52px; margin-bottom: 12px; line-height: 1;">📦</div>
+  <h2 style="font-family: 'VT323', monospace; font-size: 36px; margin-bottom: 8px;">No Orders Yet!</h2>
+  <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">You haven't placed any orders yet. Start shopping to see your orders here.</p>
+  <a href="{{ url_for('home') }}" class="btn btn-primary btn-lg" style="text-decoration: none;">🛍️ Start Shopping</a>
+</div>
+{% endfor %}
+
+{% endblock %}

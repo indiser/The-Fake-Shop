@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}Create Account{% endblock %}
+{% block content %}
+
+<div style="max-width: 520px; margin: 24px auto;">
+
+  <div class="panel" style="padding: 0;">
+    <div class="titlebar">
+      📝 Create Your Free Account
+    </div>
+
+    <div style="padding: 22px;">
+
+      <!-- Header -->
+      <div style="text-align: center; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px dashed var(--border-lo);">
+        <div style="font-family: 'VT323', monospace; font-size: 28px; color: var(--xp-blue); letter-spacing: 2px;">🛒 Join The Fake Shop</div>
+        <div style="font-size: 12px; color: var(--text-muted);">Free registration · No credit card required</div>
+      </div>
+
+      <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+
+        <!-- Full Name -->
+        <div class="form-group">
+          <label class="form-label" for="name">👤 Full Name</label>
+          {{ form.name(class="input", id="name", autocomplete="name", placeholder="Your full name") }}
+          {% for error in form.name.errors %}
+            <div style="color: var(--price); font-size: 12px; margin-top: 3px;">⚠️ {{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label class="form-label" for="email">📧 Email Address</label>
+          {{ form.email(class="input", id="email", autocomplete="email", placeholder="your@email.com") }}
+          {% for error in form.email.errors %}
+            <div style="color: var(--price); font-size: 12px; margin-top: 3px;">⚠️ {{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label class="form-label" for="passwordInput">🔑 Password</label>
+          <div style="display: flex; gap: 0;">
+            {{ form.password(class="input", id="passwordInput", autocomplete="new-password", placeholder="Create a strong password", onkeyup="checkStrength()", style="border-right: none;") }}
+            <button type="button" onclick="togglePassword()" class="btn" style="border-left: none; flex-shrink: 0; padding: 0 10px;" id="toggleBtn" aria-label="Toggle password visibility">👁</button>
+          </div>
+
+          <!-- Strength bar -->
+          <div style="margin-top: 8px;">
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" id="strengthBar" style="width: 0%;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 3px;">
+              <span id="strengthText" style="font-size: 11px; color: var(--text-muted);">Strength: Too Short</span>
+            </div>
+          </div>
+
+          <!-- Requirements checklist -->
+          <div style="margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 3px; font-size: 12px; color: var(--text-muted);">
+            <div id="check-len">⬜ 8+ Characters</div>
+            <div id="check-upper">⬜ Uppercase Letter</div>
+            <div id="check-lower">⬜ Lowercase Letter</div>
+            <div id="check-num">⬜ Number</div>
+            <div id="check-sym">⬜ Symbol (!@#...)</div>
+          </div>
+
+          {% for error in form.password.errors %}
+            <div style="color: var(--price); font-size: 12px; margin-top: 3px;">⚠️ {{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <!-- Terms notice -->
+        <div style="padding: 8px 10px; background: var(--bg-dark); border: 1px solid var(--border-lo); font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
+          ℹ️ By registering you agree to our <a href="#" class="retro-link">Terms of Service</a> and <a href="#" class="retro-link">Privacy Policy</a>.
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg btn-full">
+          ✅ Create My Account
+        </button>
+      </form>
+
+      <hr class="divider" style="margin: 16px 0;">
+
+      <div style="text-align: center; font-size: 13px; color: var(--text-muted);">
+        Already have an account?
+        <a href="{{ url_for('login') }}" class="retro-link" style="font-weight: bold;"> Sign in →</a>
+      </div>
+    </div>
+
+    <!-- Status bar -->
+    <div style="padding: 4px 10px; background: var(--bg-dark); border-top: 1px solid var(--border-lo); font-size: 11px; color: var(--text-muted);">
+      <span style="color: var(--xp-lime);">●</span> Secure Registration Form
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  function togglePassword() {
+    const input = document.getElementById('passwordInput');
+    const btn   = document.getElementById('toggleBtn');
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = '🙈';
+    } else {
+      input.type = 'password';
+      btn.textContent = '👁';
+    }
+  }
+
+  function checkStrength() {
+    const pw  = document.getElementById('passwordInput').value;
+    const bar = document.getElementById('strengthBar');
+    const txt = document.getElementById('strengthText');
+
+    const rules = [
+      { id: 'check-len',   valid: pw.length >= 8,            label: '8+ Characters' },
+      { id: 'check-upper', valid: /[A-Z]/.test(pw),          label: 'Uppercase Letter' },
+      { id: 'check-lower', valid: /[a-z]/.test(pw),          label: 'Lowercase Letter' },
+      { id: 'check-num',   valid: /\d/.test(pw),             label: 'Number' },
+      { id: 'check-sym',   valid: /[!@#$%^&*(),.?":{}|<>]/.test(pw), label: 'Symbol (!@#...)' },
+    ];
+
+    let score = 0;
+    rules.forEach(rule => {
+      const el = document.getElementById(rule.id);
+      if (rule.valid) {
+        score++;
+        el.textContent = '✅ ' + rule.label;
+        el.style.color = 'var(--xp-lime)';
+      } else {
+        el.textContent = '⬜ ' + rule.label;
+        el.style.color = 'var(--text-muted)';
+      }
+    });
+
+    const width = (score / 5) * 100;
+    bar.style.width = width + '%';
+
+    const colors = ['#CC0000', '#CC0000', '#CC8800', '#CC8800', '#008800', '#008800'];
+    const labels = ['Too Short', 'Too Short', 'Weak', 'Medium', 'Good', 'Strong'];
+    bar.style.background = `linear-gradient(to right, ${colors[score]}, ${colors[score]})`;
+    txt.textContent = 'Strength: ' + labels[score];
+    txt.style.color = colors[score];
+  }
+</script>
+{% endblock %}

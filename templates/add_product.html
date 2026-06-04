@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}{% if is_edit %}Edit Product{% else %}Add New Product{% endif %} — The Fake Shop{% endblock %}
+
+{% block content %}
+
+<div style="max-width: 580px; margin: 20px auto;">
+
+  <div class="section-head" style="margin-bottom: 14px;">
+    {% if is_edit %}✏️ Edit Product{% else %}📦 Add New Product{% endif %}
+  </div>
+
+  <div class="panel" style="padding: 0;">
+    <div class="titlebar">
+      {% if is_edit %}✏️ Edit Inventory Item{% else %}➕ Add Inventory Item{% endif %}
+    </div>
+    <div style="padding: 22px;">
+
+      <form method="POST" enctype="multipart/form-data" novalidate>
+        {{ form.hidden_tag() }}
+
+        <!-- Product Title -->
+        <div class="form-group">
+          <label class="form-label" for="title">📝 Product Title</label>
+          {{ form.title(class="input", id="title", placeholder="e.g. Premium Wireless Headphones") }}
+          {% for error in form.title.errors %}
+            <div style="color: var(--price); font-size: 12px; margin-top: 3px;">⚠️ {{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <!-- Price -->
+        <div class="form-group">
+          <label class="form-label" for="price">💵 Price (in Dollars)</label>
+          <div style="display: flex; gap: 0; align-items: stretch;">
+            <span style="padding: 5px 10px; background: var(--bg-dark); border: 1px solid var(--border-lo); border-right: none; font-weight: bold; font-size: 14px; display: flex; align-items: center; color: var(--text-muted);">$</span>
+            {{ form.price(class="input", id="price", placeholder="19.99", style="border-left: none;") }}
+          </div>
+          {% for error in form.price.errors %}
+            <div style="color: var(--price); font-size: 12px; margin-top: 3px;">⚠️ {{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label class="form-label" for="description">📄 Product Description</label>
+          {{ form.description(class="input", id="description", rows="4", placeholder="Describe this product in detail...") }}
+          {% for error in form.description.errors %}
+            <div style="color: var(--price); font-size: 12px; margin-top: 3px;">⚠️ {{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <hr class="divider" style="margin: 18px 0;">
+        <div style="font-family: 'VT323', monospace; font-size: 22px; color: var(--xp-blue); margin-bottom: 12px;">🖼️ Product Image</div>
+
+        <!-- Image URL -->
+        <div class="form-group">
+          <label class="form-label" for="image_url">Option 1: Paste Image URL</label>
+          {{ form.image_url(class="input", id="image_url", placeholder="https://example.com/product.jpg") }}
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">Paste a link from Unsplash, Google Images, or any public image URL.</div>
+        </div>
+
+        <!-- OR Divider -->
+        <div style="display: flex; align-items: center; gap: 10px; margin: 12px 0;">
+          <div style="flex: 1; height: 1px; background: var(--border-lo);"></div>
+          <div style="font-weight: bold; font-size: 12px; color: var(--text-muted); padding: 0 6px; border: 1px solid var(--border-lo); background: var(--bg-dark);">— OR —</div>
+          <div style="flex: 1; height: 1px; background: var(--border-lo);"></div>
+        </div>
+
+        <!-- Image File Upload -->
+        <div class="form-group">
+          <label class="form-label" for="image_file">Option 2: Upload Image File</label>
+          {{ form.image_file(class="input", id="image_file", accept="image/*") }}
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">Accepted formats: JPG, PNG, GIF, WebP</div>
+        </div>
+
+        <hr class="divider" style="margin: 18px 0;">
+
+        <!-- Submit -->
+        <div style="display: flex; gap: 10px;">
+          <button type="submit" class="btn btn-primary btn-lg" style="flex: 1;">
+            {% if is_edit %}💾 Save Changes{% else %}✅ Add Product{% endif %}
+          </button>
+          <a href="{{ url_for('home') }}" class="btn btn-lg" style="text-decoration: none; flex: 1; justify-content: center;">✕ Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

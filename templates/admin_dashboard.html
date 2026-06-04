@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="section-head" style="margin-bottom: 16px;">📊 Executive Dashboard</div>
+
+<!-- ─── METRICS CARDS ──────────────────────── -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px;">
+
+  <!-- Revenue -->
+  <div class="panel" style="padding: 0;">
+    <div class="titlebar" style="background: linear-gradient(to right, #006600, #008800);">💵 Total Revenue</div>
+    <div style="padding: 14px; text-align: center;">
+      <div class="price" style="font-size: 28px;">${{ "%.2f" % revenue }}</div>
+      <div style="font-size: 11px; color: var(--xp-lime); margin-top: 4px; font-weight: bold;">All Time Earnings</div>
+    </div>
+  </div>
+
+  <!-- Orders -->
+  <div class="panel" style="padding: 0;">
+    <div class="titlebar" style="background: linear-gradient(to right, #0A2888, #1858DC);">📦 Total Orders</div>
+    <div style="padding: 14px; text-align: center;">
+      <div style="font-family: 'VT323', monospace; font-size: 44px; color: var(--xp-blue); line-height: 1;">{{ orders }}</div>
+      <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Orders Placed</div>
+    </div>
+  </div>
+
+  <!-- Average Order Value -->
+  <div class="panel" style="padding: 0;">
+    <div class="titlebar" style="background: linear-gradient(to right, #6A2800, #C85000);">📈 Avg. Order Value</div>
+    <div style="padding: 14px; text-align: center;">
+      <div class="price" style="font-size: 28px; color: var(--xp-orange);">${{ "%.2f" % avg_order }}</div>
+      <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Per Transaction</div>
+    </div>
+  </div>
+
+  <!-- Pending Orders -->
+  <div class="panel" style="padding: 0;">
+    <div class="titlebar" style="background: linear-gradient(to right, #886600, #AAAA00);">⏳ Pending Orders</div>
+    <div style="padding: 14px; text-align: center;">
+      <div style="font-family: 'VT323', monospace; font-size: 44px; color: var(--xp-gold); line-height: 1;">{{ pending_orders_count }}</div>
+      <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Awaiting Shipment</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ─── QUICK ADMIN ACTIONS ──────────────── -->
+<div class="panel" style="margin-bottom: 18px; padding: 0;">
+  <div class="titlebar">⚡ Quick Actions</div>
+  <div style="padding: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+    <a href="{{ url_for('admin_orders') }}" class="btn btn-blue" style="text-decoration: none;">📦 Manage Orders</a>
+    <a href="{{ url_for('admin_coupons') }}" class="btn" style="text-decoration: none;">🏷️ Manage Coupons</a>
+    <a href="{{ url_for('add_product') }}" class="btn btn-primary" style="text-decoration: none;">➕ Add Product</a>
+    <a href="{{ url_for('export_csv') }}" class="btn btn-success" style="text-decoration: none;">📊 Export Sales CSV</a>
+    <a href="{{ url_for('home') }}" class="btn" style="text-decoration: none;">🏠 View Shop</a>
+  </div>
+</div>
+
+<!-- ─── SALES CHART ───────────────────────── -->
+<div class="panel" style="margin-bottom: 18px; padding: 0;">
+  <div class="titlebar">📈 Sales Performance — Last 30 Days</div>
+  <div style="padding: 16px; background: var(--bg-panel);">
+    <canvas id="salesChart" height="90"></canvas>
+  </div>
+</div>
+
+<!-- ─── BOTTOM PANELS ─────────────────────── -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+
+  <!-- Top Searches -->
+  <div class="panel" style="padding: 0;">
+    <div class="titlebar">🔍 Top Customer Searches</div>
+    <table class="retro-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Search Term</th>
+          <th style="text-align: center;">Count</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for term in top_searches %}
+        <tr>
+          <td style="color: var(--text-muted); font-size: 12px;">{{ loop.index }}</td>
+          <td style="font-weight: bold; text-transform: capitalize;">{{ term.term }}</td>
+          <td style="text-align: center;">
+            <span class="badge badge-ship">{{ term.count }}</span>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 16px; font-style: italic;">
+            No search data yet. Users need to search for something!
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- System Info -->
+  <div class="panel" style="padding: 0;">
+    <div class="titlebar">💻 System Info</div>
+    <div style="padding: 12px;">
+      <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
+        {% set info_rows = [
+          ('🌐 Site Status', '● ONLINE'),
+          ('🏪 Shop', 'The Fake Shop'),
+          ('📅 Dashboard', 'Admin Panel v7.4'),
+          ('🔒 Security', 'SSL Active'),
+        ] %}
+        {% for label, value in info_rows %}
+        <tr>
+          <td style="padding: 5px 0; color: var(--text-muted); font-weight: bold;">{{ label }}</td>
+          <td style="padding: 5px 0; font-family: 'Courier New'; font-size: 12px; color: var(--xp-lime);">{{ value }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+
+      <hr class="divider" style="margin: 10px 0;">
+
+      <div style="text-align: center; padding: 8px; background: var(--bg-dark); border: 1px solid var(--border-lo); font-size: 11px; color: var(--text-muted);">
+        You are logged in as <strong>Admin</strong><br>
+        <a href="{{ url_for('logout') }}" class="retro-link">🚪 Logout</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+  const isDark = document.documentElement.classList.contains('dark');
+  const gridColor  = isDark ? 'rgba(77,159,232,0.1)' : 'rgba(0,0,0,0.08)';
+  const textColor  = isDark ? '#D0C4A8' : '#333';
+  const borderColor = isDark ? 'rgba(77,159,232,0.9)' : 'rgba(24,88,220,0.9)';
+  const fillColor  = isDark ? 'rgba(77,159,232,0.15)' : 'rgba(24,88,220,0.1)';
+
+  const ctx = document.getElementById('salesChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: {{ dates | safe }},
+      datasets: [{
+        label: 'Revenue ($)',
+        data: {{ sales | safe }},
+        borderColor: borderColor,
+        backgroundColor: fillColor,
+        borderWidth: 2,
+        fill: true,
+        tension: 0.35,
+        pointBackgroundColor: borderColor,
+        pointBorderColor: isDark ? '#0D1117' : '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { labels: { color: textColor, font: { family: 'Trebuchet MS', size: 12 } } },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' $' + ctx.parsed.y.toFixed(2)
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: textColor, font: { size: 11 } }, grid: { color: gridColor } },
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: textColor,
+            font: { size: 11 },
+            callback: v => '$' + v.toFixed(0)
+          },
+          grid: { color: gridColor }
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}

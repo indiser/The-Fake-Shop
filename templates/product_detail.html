@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.title }}{% endblock %}
+
+{% block content %}
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb" style="margin-bottom: 12px;">
+  <a href="{{ url_for('home') }}">🏠 Home</a>
+  <span>{{ product.title }}</span>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PRODUCT DETAIL LAYOUT
+     ═══════════════════════════════════════════ -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;" id="product-detail-grid">
+
+  <!-- ── LEFT: IMAGE GALLERY ───────────────── -->
+  <div>
+    <!-- Main Image Panel -->
+    <div class="panel" style="padding: 0; overflow: hidden;">
+      <div class="titlebar" style="font-size: 11px;">
+        📷 Product Gallery
+        {% if product.images %}
+          <span style="margin-left: auto; font-size: 10px; opacity: 0.8;">{{ product.images|length + 1 }} photos</span>
+        {% endif %}
+      </div>
+
+      <!-- Main display image -->
+      <div style="background: #fff; display: flex; align-items: center; justify-content: center; padding: 16px; min-height: 360px;" id="main-image-wrap">
+        <img
+          id="main-product-image"
+          src="{{ product.get_watermarked_image() }}"
+          alt="{{ product.title }}"
+          loading="eager"
+          style="max-width: 100%; max-height: 480px; object-fit: contain; object-position: center; display: block;">
+      </div>
+
+      <!-- Thumbnail Strip -->
+      {% if product.images %}
+      <div style="border-top: 1px solid var(--border-lo); background: var(--bg-dark); padding: 8px; display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;">
+        <!-- Main image thumb -->
+        <button onclick="switchImage('{{ product.get_watermarked_image() }}', this)" class="btn" style="padding: 3px; border-width: 2px; border-color: var(--xp-blue) var(--border-lo) var(--border-lo) var(--xp-blue);" aria-label="View main image">
+          <img src="{{ product.get_watermarked_image() }}" alt="Main" style="width: 60px; height: 60px; object-fit: contain; object-position: center; display: block;">
+        </button>
+        {% for image in product.images %}
+        <div style="position: relative;">
+          <button onclick="switchImage('{{ image.image_url }}', this)" class="btn" style="padding: 3px;" aria-label="View image {{ loop.index + 1 }}">
+            <img src="{{ image.image_url }}" alt="Gallery {{ loop.index }}" style="width: 60px; height: 60px; object-fit: contain; object-position: center; display: block;">
+          </button>
+          {% if current_user.id == 1 %}
+          <a href="{{ url_for('delete_product_image', image_id=image.id) }}" class="btn btn-danger btn-sm" style="position: absolute; top: -6px; right: -6px; padding: 1px 5px; font-size: 10px; text-decoration: none;" onclick="return confirm('Delete this image?');" title="Delete image">✕</a>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Admin: Upload Gallery Photo -->
+    {% if current_user.id == 1 %}
+    <div class="panel" style="margin-top: 10px; padding: 0;">
+      <div class="titlebar" style="font-size: 11px;">📂 Add Gallery Image</div>
+      <div style="padding: 12px;">
+        <form action="{{ url_for('add_product_image', product_id=product.id) }}" method="POST" enctype="multipart/form-data" style="display: flex; gap: 8px; align-items: flex-end;">
+          <div style="flex: 1;">
+            <label class="form-label" style="font-size: 12px;">Select image file:</label>
+            <input type="file" name="file" class="input" style="font-size: 12px;" required accept="image/*">
+          </div>
+          <button type="submit" class="btn btn-blue btn-sm">Upload</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ── RIGHT: PRODUCT INFO ───────────────── -->
+  <div style="display: flex; flex-direction: column; gap: 12px;">
+
+    <!-- Product Title Panel -->
+    <div class="panel" style="padding: 0;">
+      <div class="titlebar">📦 Product Details</div>
+      <div style="padding: 16px;">
+        <h1 style="font-size: 22px; font-weight: bold; color: var(--text); margin-bottom: 8px; line-height: 1.3;">{{ product.title }}</h1>
+
+        <!-- Rating Summary -->
+        {% set rating = product.get_rating() %}
+        {% set count  = product.reviews|length %}
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+          {% if count > 0 %}
+            <span class="stars" style="font-size: 16px;">
+              {% for _ in range(rating|round|int) %}★{% endfor %}{% for _ in range(5 - (rating|round|int)) %}☆{% endfor %}
+            </span>
+            <span style="font-size: 13px; font-weight: bold;">{{ rating }}</span>
+            <a href="#reviews" class="retro-link" style="font-size: 12px;">({{ count }} customer reviews)</a>
+          {% else %}
+            <span style="font-size: 12px; color: var(--text-muted); font-style: italic;">No reviews yet — be the first!</span>
+          {% endif %}
+        </div>
+
+        <hr class="divider">
+
+        <!-- Price -->
+        <div style="margin: 12px 0;">
+          <div style="font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;">Our Price:</div>
+          <div class="price" style="font-size: 30px;">${{ "%.2f"|format(product.price / 100) }}</div>
+          <div style="font-size: 12px; color: var(--xp-lime); font-weight: bold; margin-top: 2px;">✅ In Stock · Free Shipping on $50+</div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- Description -->
+        <div style="margin: 10px 0;">
+          <div style="font-size: 11px; font-weight: bold; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Description:</div>
+          <p style="font-size: 14px; color: var(--text); line-height: 1.6;">{{ product.description }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    {% if current_user.is_authenticated and current_user.id != 1 %}
+    <div class="panel" style="padding: 0;">
+      <div class="titlebar">🛒 Purchase Options</div>
+      <div style="padding: 14px; display: flex; flex-direction: column; gap: 8px;">
+        <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-primary btn-lg btn-full" style="text-decoration: none; font-size: 16px;">
+          🛒 Add to Cart
+        </a>
+        <a href="{{ url_for('toggle_wishlist', product_id=product.id) }}" class="btn btn-full" style="text-decoration: none;">
+          {% if product in current_user.wishlist %}
+            ❤️ Remove from Wishlist
+          {% else %}
+            🤍 Add to Wishlist
+          {% endif %}
+        </a>
+        <div style="padding: 8px; background: var(--bg-dark); border: 1px solid var(--border-lo); font-size: 12px; color: var(--text-muted); text-align: center;">
+          🔒 Secure checkout &nbsp;·&nbsp; 30-day returns &nbsp;·&nbsp; SSL encrypted
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if not current_user.is_authenticated %}
+    <div class="panel" style="padding: 0;">
+      <div class="titlebar">🔐 Sign In to Purchase</div>
+      <div style="padding: 14px; display: flex; flex-direction: column; gap: 8px;">
+        <a href="{{ url_for('login') }}" class="btn btn-blue btn-lg btn-full" style="text-decoration: none;">Sign In</a>
+        <a href="{{ url_for('register') }}" class="btn btn-full" style="text-decoration: none;">Create Free Account</a>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Admin Controls -->
+    {% if current_user.id == 1 %}
+    <div class="panel" style="padding: 0;">
+      <div class="titlebar" style="background: linear-gradient(to right, #800000, #CC2200);">🔧 Admin Controls</div>
+      <div style="padding: 12px; display: flex; gap: 8px;">
+        <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn btn-full" style="text-decoration: none;">✏️ Edit Product</a>
+        <a href="{{ url_for('delete_product', product_id=product.id) }}" class="btn btn-danger btn-full" style="text-decoration: none;" onclick="return confirm('Permanently delete this product?');">🗑️ Delete</a>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Quick Info Panel -->
+    <div class="panel" style="padding: 0;">
+      <div class="titlebar" style="font-size: 11px;">📋 Quick Info</div>
+      <table class="retro-table">
+        <tr>
+          <td style="font-weight: bold; color: var(--text-muted); width: 40%;">Product ID</td>
+          <td><code style="font-family: 'Courier New', monospace; font-size: 12px;">#{{ product.id }}</code></td>
+        </tr>
+        <tr>
+          <td style="font-weight: bold; color: var(--text-muted);">Reviews</td>
+          <td>{{ count }} customer review{% if count != 1 %}s{% endif %}</td>
+        </tr>
+        <tr>
+          <td style="font-weight: bold; color: var(--text-muted);">Gallery</td>
+          <td>{{ product.images|length + 1 }} image{% if (product.images|length + 1) != 1 %}s{% endif %}</td>
+        </tr>
+        <tr>
+          <td style="font-weight: bold; color: var(--text-muted);">Price</td>
+          <td style="font-family: 'Courier New'; font-weight: bold; color: var(--price);">${{ "%.2f"|format(product.price / 100) }}</td>
+        </tr>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     REVIEWS SECTION
+     ═══════════════════════════════════════════ -->
+<div id="reviews" style="max-width: 800px; margin: 0 auto;">
+
+  <div class="section-head" style="margin-bottom: 14px;">💬 Customer Reviews ({{ product.reviews|length }})</div>
+
+  <!-- Write Review Form -->
+  {% if not current_user.id == 1 and current_user.is_authenticated %}
+  <div class="panel" style="margin-bottom: 16px; padding: 0;">
+    <div class="titlebar">✍️ Write a Review</div>
+    <div style="padding: 16px;">
+      <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div class="form-group">
+          <label class="form-label">⭐ Your Rating</label>
+          {{ form.rating(class="retro-select", style="display: block; width: 220px; padding: 6px 32px 6px 10px; font-size: 14px; font-weight: bold; font-family: 'Trebuchet MS', Tahoma, sans-serif; border: 1px solid var(--border-lo); box-shadow: inset 1px 1px 2px rgba(0,0,0,0.12);") }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Your Review</label>
+          {{ form.text(class="input", rows="4", placeholder="Share your experience with this product...") }}
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="padding: 6px 20px;">
+          ✅ Submit Review
+        </button>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Review List -->
+  {% for review in product.reviews %}
+  <div class="panel" style="margin-bottom: 10px; padding: 0;">
+    <div style="padding: 4px 10px; background: var(--bg-dark); border-bottom: 1px solid var(--border-lo); display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+      <span style="font-weight: bold; font-size: 13px;">{{ review.author.name }}</span>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span class="stars" style="font-size: 14px;">
+          {% for _ in range(review.rating) %}★{% endfor %}{% for _ in range(5 - review.rating) %}☆{% endfor %}
+        </span>
+        <span style="font-size: 11px; color: var(--text-muted);">{{ review.date_posted }}</span>
+      </div>
+    </div>
+    <div style="padding: 12px 14px;">
+      <p style="font-size: 13px; color: var(--text); line-height: 1.6; margin: 0;">{{ review.text }}</p>
+    </div>
+  </div>
+  {% else %}
+  <div class="panel" style="padding: 24px; text-align: center;">
+    <div style="font-size: 32px; margin-bottom: 8px;">⭐</div>
+    <p style="color: var(--text-muted); font-size: 13px;">No reviews yet. Be the first to share your experience!</p>
+  </div>
+  {% endfor %}
+
+</div>
+
+<style>
+  @media (max-width: 768px) {
+    #product-detail-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Image switcher for gallery
+  function switchImage(src, btn) {
+    const mainImg = document.getElementById('main-product-image');
+    if (mainImg) mainImg.src = src;
+    // Update active state
+    document.querySelectorAll('#product-detail-grid .btn img').forEach(img => {
+      img.closest('.btn').style.borderColor = '';
+    });
+    if (btn) {
+      btn.style.borderColor = 'var(--xp-blue)';
+    }
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The Fake Shop - Your Online Superstore for Amazing Deals">
+    <title>{% block title %}The Fake Shop{% endblock %}</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    <link rel="icon" sizes="192x192" href="{{ url_for('static', filename='android-chrome-192x192.png') }}">
+    <link rel="icon" sizes="512x512" href="{{ url_for('static', filename='android-chrome-512x512.jpg') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              pixel: ['"VT323"', 'monospace'],
+              press: ['"Press Start 2P"', 'monospace'],
+              win: ['"Trebuchet MS"', 'Tahoma', 'Geneva', 'sans-serif'],
+              mono: ['"Courier New"', 'Courier', 'monospace'],
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      /* ============================================
+         THE FAKE SHOP — Y2K RETRO DESIGN SYSTEM
+         Inspired by Windows XP, early Amazon/eBay,
+         and classic 1999-2004 web storefronts
+         ============================================ */
+
+      :root {
+        --bg:          #ECE9D8;
+        --bg-panel:    #F5F2E8;
+        --bg-dark:     #D4D0C8;
+        --bg-inset:    #C8C4BC;
+        --border-hi:   #FFFFFF;
+        --border-lo:   #808080;
+        --border-edge: #404040;
+        --text:        #1A1209;
+        --text-muted:  #5A5040;
+        --link:        #1030A0;
+        --link-hover:  #CC2200;
+        --price:       #CC0000;
+        --sale:        #009900;
+        --xp-blue:     #245EDC;
+        --xp-blue-dk:  #0A3080;
+        --xp-orange:   #E85D04;
+        --xp-lime:     #4A9E2F;
+        --xp-gold:     #C4962A;
+        --xp-cyan:     #008B9A;
+      }
+
+      html.dark {
+        --bg:          #0D1117;
+        --bg-panel:    #161B24;
+        --bg-dark:     #0A0E18;
+        --bg-inset:    #080C14;
+        --border-hi:   #2A4070;
+        --border-lo:   #0A1830;
+        --border-edge: #050A14;
+        --text:        #D0C4A8;
+        --text-muted:  #7A8FA8;
+        --link:        #80AAEE;
+        --link-hover:  #FFAA40;
+        --price:       #FF6060;
+        --sale:        #60FF60;
+        --xp-blue:     #4D9FE8;
+        --xp-blue-dk:  #2A60B0;
+        --xp-orange:   #FF7A1A;
+        --xp-lime:     #7DFF4F;
+        --xp-gold:     #FFD050;
+        --xp-cyan:     #00D4F0;
+      }
+
+      *, *::before, *::after { box-sizing: border-box; }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        font-family: 'Trebuchet MS', Tahoma, Geneva, sans-serif;
+        background-color: var(--bg);
+        color: var(--text);
+        font-size: 14px;
+        line-height: 1.5;
+        min-height: 100vh;
+      }
+
+      /* ── BEVEL EFFECTS ─────────────────────────── */
+      .raised {
+        border: 1px solid;
+        border-color: var(--border-hi) var(--border-lo) var(--border-lo) var(--border-hi);
+        box-shadow: 1px 1px 0 var(--border-edge);
+        background: var(--bg-panel);
+      }
+
+      .sunken {
+        border: 1px solid;
+        border-color: var(--border-lo) var(--border-hi) var(--border-hi) var(--border-lo);
+        box-shadow: inset 1px 1px 0 rgba(0,0,0,0.15);
+        background: var(--bg-inset);
+      }
+
+      /* ── BUTTONS ───────────────────────────────── */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 5px 14px;
+        font-family: 'Trebuchet MS', Tahoma, sans-serif;
+        font-size: 13px;
+        font-weight: bold;
+        cursor: pointer;
+        text-decoration: none;
+        white-space: nowrap;
+        user-select: none;
+        transition: filter 0.05s, transform 0.05s;
+        border: 1px solid;
+        border-color: var(--border-hi) var(--border-lo) var(--border-lo) var(--border-hi);
+        box-shadow: 1px 1px 0 var(--border-edge);
+        background: linear-gradient(to bottom, #F4F2EA 0%, #DEDAD0 45%, #CAC8BE 50%, #DCD8CE 100%);
+        color: var(--text);
+      }
+
+      html.dark .btn {
+        background: linear-gradient(to bottom, #253548 0%, #182535 45%, #101D2C 50%, #1A2C40 100%);
+        color: var(--text);
+        border-color: var(--border-hi) var(--border-lo) var(--border-lo) var(--border-hi);
+      }
+
+      .btn:hover { filter: brightness(1.08); }
+      .btn:active {
+        border-color: var(--border-lo) var(--border-hi) var(--border-hi) var(--border-lo);
+        box-shadow: inset 1px 1px 0 var(--border-edge);
+        padding: 6px 13px 4px 15px;
+        filter: brightness(0.95);
+      }
+
+      .btn-primary {
+        background: linear-gradient(to bottom, #FF9520 0%, #E85D04 100%);
+        border-color: #FFA840 #AA4400 #AA4400 #FFA840;
+        color: #fff !important;
+        text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+        box-shadow: 1px 1px 0 #7A3000;
+      }
+      .btn-primary:hover { background: linear-gradient(to bottom, #FFAA40 0%, #FF6A10 100%); }
+
+      .btn-blue {
+        background: linear-gradient(to bottom, #4A8AF0 0%, #1A4ACC 100%);
+        border-color: #6AAEFF #0A2888 #0A2888 #6AAEFF;
+        color: #fff !important;
+        text-shadow: 0 1px 0 rgba(0,0,0,0.4);
+        box-shadow: 1px 1px 0 #06186A;
+      }
+      .btn-blue:hover { background: linear-gradient(to bottom, #6AAEFF 0%, #2A5AE8 100%); }
+
+      .btn-danger {
+        background: linear-gradient(to bottom, #F04040 0%, #CC1010 100%);
+        border-color: #FF6060 #880000 #880000 #FF6060;
+        color: #fff !important;
+        text-shadow: 0 1px 0 rgba(0,0,0,0.4);
+        box-shadow: 1px 1px 0 #600000;
+      }
+      .btn-danger:hover { background: linear-gradient(to bottom, #FF5050 0%, #DD2020 100%); }
+
+      .btn-success {
+        background: linear-gradient(to bottom, #50C050 0%, #1A8020 100%);
+        border-color: #70E070 #0A5010 #0A5010 #70E070;
+        color: #fff !important;
+        text-shadow: 0 1px 0 rgba(0,0,0,0.4);
+        box-shadow: 1px 1px 0 #064010;
+      }
+      .btn-success:hover { background: linear-gradient(to bottom, #60D060 0%, #2A9030 100%); }
+
+      .btn-sm { padding: 3px 10px; font-size: 12px; }
+      .btn-lg { padding: 8px 22px; font-size: 15px; }
+      .btn-full { width: 100%; }
+
+      /* ── INPUTS ────────────────────────────────── */
+      .input, select.input, textarea.input {
+        display: block;
+        width: 100%;
+        padding: 5px 8px;
+        font-family: 'Trebuchet MS', Tahoma, sans-serif;
+        font-size: 13px;
+        color: var(--text);
+        background: #fff;
+        border: 1px solid;
+        border-color: var(--border-lo) var(--border-hi) var(--border-hi) var(--border-lo);
+        box-shadow: inset 1px 1px 2px rgba(0,0,0,0.12);
+        outline: none;
+        transition: border-color 0.1s, box-shadow 0.1s;
+      }
+
+      html.dark .input, html.dark select.input, html.dark textarea.input {
+        background: #080C14;
+        color: var(--text);
+        border-color: var(--border-lo) var(--border-hi) var(--border-hi) var(--border-lo);
+      }
+
+      .input:focus, select.input:focus, textarea.input:focus {
+        border-color: var(--xp-blue) var(--border-hi) var(--border-hi) var(--xp-blue);
+        box-shadow: inset 1px 1px 2px rgba(0,0,0,0.12), 0 0 0 2px rgba(36,94,220,0.2);
+      }
+
+      textarea.input { resize: vertical; }
+
+      /* ── CARDS / PANELS ─────────────────────────── */
+      .panel {
+        background: var(--bg-panel);
+        border: 1px solid;
+        border-color: var(--border-hi) var(--border-lo) var(--border-lo) var(--border-hi);
+        box-shadow: 2px 2px 0 var(--border-edge);
+      }
+
+      /* XP-style window titlebar */
+      .titlebar {
+        background: linear-gradient(to right, #0838B8 0%, #3878EC 40%, #1858DC 100%);
+        color: #fff;
+        font-family: 'Trebuchet MS', Tahoma, sans-serif;
+        font-size: 13px;
+        font-weight: bold;
+        padding: 4px 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        user-select: none;
+      }
+      html.dark .titlebar {
+        background: linear-gradient(to right, #040E30 0%, #1030A0 40%, #0820A8 100%);
+      }
+
+      /* XP close button */
+      .titlebar-close {
+        margin-left: auto;
+        width: 21px;
+        height: 19px;
+        background: linear-gradient(to bottom, #F06040 0%, #C81008 100%);
+        border: 1px solid;
+        border-color: #FF8060 #800800 #800800 #FF8060;
+        color: #fff;
+        font-size: 11px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .titlebar-close:hover { background: linear-gradient(to bottom, #FF7050 0%, #E01808 100%); }
+      .titlebar-close:active { padding: 1px 0 0 1px; }
+
+      /* ── PRODUCT CARDS ──────────────────────────── */
+      .product-card {
+        background: var(--bg-panel);
+        border: 1px solid;
+        border-color: var(--border-hi) var(--border-lo) var(--border-lo) var(--border-hi);
+        box-shadow: 2px 2px 0 var(--border-edge);
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.1s ease, box-shadow 0.1s ease;
+        position: relative;
+      }
+      .product-card:hover {
+        transform: translate(-1px, -2px);
+        box-shadow: 4px 4px 0 var(--border-edge);
+      }
+
+      .product-card-image {
+        width: 100%;
+        background: #FFFFFF;
+        border-bottom: 1px solid var(--border-lo);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+        min-height: 200px;
+      }
+      html.dark .product-card-image { background: #08101A; }
+
+      .product-card-image img {
+        width: 100%;
+        max-height: 300px;
+        object-fit: contain;
+        object-position: center;
+        display: block;
+      }
+
+      /* ── NAVIGATION TABS ────────────────────────── */
+      .nav-tab {
+        display: inline-block;
+        padding: 6px 14px;
+        font-size: 13px;
+        font-weight: bold;
+        text-decoration: none;
+        color: var(--text);
+        background: linear-gradient(to bottom, #EEEADC 0%, #D0CCBE 100%);
+        border: 1px solid;
+        border-color: var(--border-hi) var(--border-lo) var(--border-lo) var(--border-hi);
+        white-space: nowrap;
+        cursor: pointer;
+        font-family: 'Trebuchet MS', Tahoma, sans-serif;
+        transition: background 0.1s;
+      }
+      html.dark .nav-tab {
+        background: linear-gradient(to bottom, #1C2A3E 0%, #0E1A2C 100%);
+        color: var(--text);
+      }
+      .nav-tab:hover {
+        background: linear-gradient(to bottom, #DAE8FA 0%, #BAD0EE 100%);
+        color: var(--xp-blue);
+      }
+      html.dark .nav-tab:hover {
+        background: linear-gradient(to bottom, #1A3A60 0%, #0E2244 100%);
+        color: var(--xp-blue);
+      }
+      .nav-tab.active {
+        background: linear-gradient(to bottom, #C8DCFA 0%, #A8C4F0 100%);
+        color: var(--xp-blue-dk);
+      }
+      html.dark .nav-tab.active {
+        background: linear-gradient(to bottom, #1A3060 0%, #0E2050 100%);
+        color: var(--xp-blue);
+      }
+
+      /* ── BADGES ─────────────────────────────────── */
+      .badge {
+        display: inline-block;
+        padding: 2px 6px;
+        font-size: 10px;
+        font-weight: bold;
+        font-family: 'Trebuchet MS', Tahoma, sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: 1px solid;
+        line-height: 1.4;
+      }
+      .badge-new    { background: #FF9010; border-color: #CC5800; color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,0.3); }
+      .badge-hot    { background: #CC1000; border-color: #880000; color: #fff; }
+      .badge-sale   { background: #008800; border-color: #005500; color: #fff; }
+      .badge-ship   { background: #1858DC; border-color: #0A2888; color: #fff; }
+      .badge-warn   { background: #CC8800; border-color: #886600; color: #fff; }
+      .badge-pend   { background: #FFAA00; border-color: #CC8800; color: #000; }
+
+      /* ── SECTION HEADERS ────────────────────────── */
+      .section-head {
+        font-family: 'VT323', monospace;
+        font-size: 26px;
+        letter-spacing: 1px;
+        padding: 3px 14px;
+        background: linear-gradient(to right, #0A2888, #2858DC);
+        color: #fff;
+        border: 1px solid;
+        border-color: #5A9AF8 #0A1A68 #0A1A68 #5A9AF8;
+        display: inline-block;
+        box-shadow: 2px 2px 0 #040E40;
+        text-shadow: 1px 1px 0 rgba(0,0,0,0.4);
+        margin-bottom: 10px;
+      }
+      html.dark .section-head {
+        background: linear-gradient(to right, #050C28, #0A1A60);
+        border-color: var(--xp-blue) #030812 #030812 var(--xp-blue);
+        box-shadow: 2px 2px 0 #010408;
+      }
+
+      /* ── LINKS ──────────────────────────────────── */
+      a.retro-link { color: var(--link); text-decoration: underline; }
+      a.retro-link:hover { color: var(--link-hover); }
+
+      /* ── PRICE ──────────────────────────────────── */
+      .price {
+        font-family: 'Courier New', Courier, monospace;
+        color: var(--price);
+        font-weight: bold;
+        font-size: 18px;
+      }
+      .price-sale { color: var(--sale); font-weight: bold; }
+
+      /* ── STARS ──────────────────────────────────── */
+      .stars { color: #FF9900; }
+
+      /* ── PIXEL DIVIDER ──────────────────────────── */
+      .divider {
+        border: none;
+        border-top: 2px solid var(--border-lo);
+        border-bottom: 1px solid var(--border-hi);
+        margin: 12px 0;
+      }
+
+      /* ── TABLE ──────────────────────────────────── */
+      .retro-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+      .retro-table th {
+        background: linear-gradient(to bottom, #3878EC 0%, #0A2888 100%);
+        color: #fff;
+        padding: 7px 10px;
+        text-align: left;
+        font-weight: bold;
+        font-size: 12px;
+        border: 1px solid #0A1A68;
+        text-shadow: 0 1px 0 rgba(0,0,0,0.4);
+        white-space: nowrap;
+      }
+      html.dark .retro-table th {
+        background: linear-gradient(to bottom, #0A1A60 0%, #040E40 100%);
+        border-color: #020A30;
+      }
+      .retro-table td {
+        padding: 6px 10px;
+        border: 1px solid var(--border-lo);
+        vertical-align: middle;
+      }
+      .retro-table tr:nth-child(odd) td  { background: var(--bg-panel); }
+      .retro-table tr:nth-child(even) td { background: var(--bg-dark); }
+      .retro-table tr:hover td { background: #D8E8FA; color: #0A1A50; }
+      html.dark .retro-table tr:hover td { background: #0E2040; color: var(--text); }
+
+      /* ── FORM GROUP ─────────────────────────────── */
+      .form-group { margin-bottom: 12px; }
+      .form-label {
+        display: block;
+        font-weight: bold;
+        font-size: 13px;
+        margin-bottom: 4px;
+        color: var(--text);
+      }
+
+      /* ── ALERTS (Flash messages) ─────────────────── */
+      .alert {
+        padding: 9px 14px;
+        border: 1px solid;
+        font-size: 13px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .alert-success { background: #D4F0D4; border-color: #006600; color: #004000; }
+      .alert-danger  { background: #F8D8D8; border-color: #CC0000; color: #880000; }
+      .alert-warning { background: #FFF4C8; border-color: #CC8800; color: #664400; }
+      .alert-info    { background: #D4E8FA; border-color: #1858DC; color: #0A1A60; }
+      html.dark .alert-success { background: #061A06; border-color: #006600; color: #50CC50; }
+      html.dark .alert-danger  { background: #1A0606; border-color: #AA0000; color: #FF6060; }
+      html.dark .alert-warning { background: #1A1200; border-color: #AA7700; color: #FFCC50; }
+      html.dark .alert-info    { background: #060E28; border-color: #1A4088; color: #80AAEE; }
+
+      /* ── SCROLLBAR ──────────────────────────────── */
+      ::-webkit-scrollbar { width: 15px; height: 15px; }
+      ::-webkit-scrollbar-track {
+        background: #C8C4B8;
+        border: 1px solid #808080;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: linear-gradient(to bottom, #EAE8DC, #C0BDB0);
+        border: 1px solid;
+        border-color: #fff #888 #888 #fff;
+      }
+      ::-webkit-scrollbar-button {
+        background: linear-gradient(to bottom, #EAE8DC, #C0BDB0);
+        border: 1px solid;
+        border-color: #fff #888 #888 #fff;
+        height: 15px;
+        width: 15px;
+      }
+      html.dark ::-webkit-scrollbar-track { background: #08101A; border-color: #1A2A40; }
+      html.dark ::-webkit-scrollbar-thumb {
+        background: linear-gradient(to bottom, #1A2A40, #0A1825);
+        border-color: #2A4070 #040A18 #040A18 #2A4070;
+      }
+      html.dark ::-webkit-scrollbar-button {
+        background: linear-gradient(to bottom, #1A2A40, #0A1825);
+        border-color: #2A4070 #040A18 #040A18 #2A4070;
+      }
+
+      /* ── DROPDOWN ───────────────────────────────── */
+      .dropdown-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: calc(100% + 2px);
+        min-width: 190px;
+        z-index: 1000;
+        background: var(--bg-panel);
+        border: 1px solid;
+        border-color: var(--border-hi) var(--border-lo) var(--border-lo) var(--border-hi);
+        box-shadow: 3px 3px 0 var(--border-edge);
+      }
+      .dropdown-menu.open { display: block; }
+
+      .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        text-decoration: none;
+        font-size: 13px;
+        color: var(--text);
+        cursor: pointer;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+      }
+      .dropdown-item:hover {
+        background: #C8DCFA;
+        color: #0A1A60;
+      }
+      html.dark .dropdown-item:hover {
+        background: #0E2040;
+        color: var(--text);
+      }
+      .dropdown-item.danger { color: #CC0000; font-weight: bold; }
+      .dropdown-item.danger:hover { background: #FFEEEE; color: #880000; }
+      html.dark .dropdown-item.danger:hover { background: #280808; color: #FF6060; }
+      .dropdown-item.bold { font-weight: bold; }
+
+      .dropdown-divider {
+        border: none;
+        border-top: 1px solid var(--border-lo);
+        margin: 3px 0;
+      }
+
+      /* ── MOBILE MENU ────────────────────────────── */
+      #mobile-nav { display: none; }
+      #mobile-nav.open { display: block; }
+
+      /* ── CRT SCANLINE (dark mode only) ──────────── */
+      html.dark body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 10, 30, 0.06) 2px,
+          rgba(0, 10, 30, 0.06) 4px
+        );
+        z-index: 9999;
+      }
+
+      /* ── MARQUEE ANIMATION ──────────────────────── */
+      @keyframes marqueeScroll {
+        0%   { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+      }
+
+      /* ── PAGINATION ─────────────────────────────── */
+      .page-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        font-size: 13px;
+        font-weight: bold;
+        text-decoration: none;
+        cursor: pointer;
+        background: linear-gradient(to bottom, #F0EEE4 0%, #D4D0C4 100%);
+        border: 1px solid;
+        border-color: var(--border-hi) var(--border-lo) var(--border-lo) var(--border-hi);
+        box-shadow: 1px 1px 0 var(--border-edge);
+        color: var(--text);
+        transition: filter 0.08s;
+      }
+      html.dark .page-btn {
+        background: linear-gradient(to bottom, #1C2A40 0%, #0E1825 100%);
+        color: var(--text);
+      }
+      .page-btn:hover { filter: brightness(1.1); color: var(--xp-blue); }
+      .page-btn.current {
+        background: linear-gradient(to bottom, #1858DC 0%, #0A2888 100%);
+        color: #fff;
+        border-color: #5A9AF8 #0A1A68 #0A1A68 #5A9AF8;
+      }
+      .page-btn.disabled { opacity: 0.5; pointer-events: none; cursor: default; }
+
+      /* ── BREADCRUMB ─────────────────────────────── */
+      .breadcrumb { font-size: 12px; color: var(--text-muted); }
+      .breadcrumb a { color: var(--link); text-decoration: underline; }
+      .breadcrumb a:hover { color: var(--link-hover); }
+      .breadcrumb span::before { content: ' › '; color: var(--text-muted); }
+
+      /* ── SELECT ─────────────────────────────────── */
+      select.retro-select {
+        padding: 4px 28px 4px 8px;
+        font-family: 'Trebuchet MS', Tahoma, sans-serif;
+        font-size: 13px;
+        color: var(--text);
+        background-color: #fff;
+        border: 1px solid;
+        border-color: var(--border-lo) var(--border-hi) var(--border-hi) var(--border-lo);
+        box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23555'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        outline: none;
+      }
+      html.dark select.retro-select {
+        background-color: #080C14;
+        color: var(--text);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+      }
+
+      /* ── RESPONSIVE ─────────────────────────────── */
+      @media (max-width: 768px) {
+        .hide-mobile { display: none !important; }
+        .show-mobile { display: flex !important; }
+      }
+      @media (min-width: 769px) {
+        .hide-desktop { display: none !important; }
+        .mobile-toggle { display: none !important; }
+      }
+
+      /* ── TOOLTIP ─────────────────────────────────── */
+      [data-tip] { position: relative; }
+
+      /* ── PROGRESS BAR ───────────────────────────── */
+      .progress-bar-wrap {
+        height: 8px;
+        background: var(--bg-inset);
+        border: 1px solid var(--border-lo);
+        box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
+        overflow: hidden;
+      }
+      .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(to right, #3878EC, #1858DC);
+        transition: width 0.3s ease;
+      }
+
+      /* ── DARK MODE GLOW ──────────────────────────── */
+      html.dark .glow {
+        box-shadow: 0 0 10px rgba(77,159,232,0.5);
+      }
+    </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════
+       TOP UTILITY BAR
+       ═══════════════════════════════════════════ -->
+  <div style="background: linear-gradient(to bottom, #2858DC 0%, #0A2888 100%); color: #fff; font-size: 11px; padding: 3px 0; overflow: hidden;">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+      <div style="overflow: hidden; flex: 1;">
+        <span style="display: inline-block; animation: marqueeScroll 40s linear infinite; white-space: nowrap;">
+          📦 FREE SHIPPING on orders over $50 &nbsp;&nbsp;·&nbsp;&nbsp;
+          🔥 HOT DEALS updated daily &nbsp;&nbsp;·&nbsp;&nbsp;
+          ✅ 30-Day Easy Returns &nbsp;&nbsp;·&nbsp;&nbsp;
+          🔒 100% Secure Checkout &nbsp;&nbsp;·&nbsp;&nbsp;
+          ⭐ Best Prices Guaranteed &nbsp;&nbsp;·&nbsp;&nbsp;
+          📦 FREE SHIPPING on orders over $50 &nbsp;&nbsp;·&nbsp;&nbsp;
+          🔥 HOT DEALS updated daily &nbsp;&nbsp;·&nbsp;&nbsp;
+          ✅ 30-Day Easy Returns &nbsp;&nbsp;·&nbsp;&nbsp;
+          🔒 100% Secure Checkout
+        </span>
+      </div>
+      <div style="flex-shrink: 0; display: flex; align-items: center; gap: 10px; font-size: 11px;">
+        {% if current_user.is_authenticated %}
+          <span>👤 <strong>{{ current_user.name.split()[0] }}</strong></span>
+        {% else %}
+          <a href="{{ url_for('login') }}" style="color: #FFD080; text-decoration: underline;">Sign In</a>
+          &nbsp;|&nbsp;
+          <a href="{{ url_for('register') }}" style="color: #FFD080; text-decoration: underline;">New Account</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       MAIN HEADER
+       ═══════════════════════════════════════════ -->
+  <header style="background: var(--bg-panel); border-bottom: 2px solid var(--border-lo); box-shadow: 0 2px 0 var(--border-edge);">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 10px 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+
+      <!-- LOGO -->
+      <a href="{{ url_for('home') }}" style="text-decoration: none; flex-shrink: 0;" aria-label="The Fake Shop Home">
+        <div style="padding: 6px 14px; background: linear-gradient(to bottom, #FFA020 0%, #E85D04 100%); border: 2px solid; border-color: #FFB840 #AA3800 #AA3800 #FFB840; box-shadow: 3px 3px 0 #7A2800;">
+          <div style="font-family: 'VT323', monospace; font-size: 34px; color: #fff; letter-spacing: 3px; text-shadow: 2px 2px 0 rgba(0,0,0,0.5); line-height: 1; white-space: nowrap;">🛒 FAKE SHOP</div>
+          <div style="font-size: 9px; color: #FFE8A8; letter-spacing: 4px; text-align: center; font-family: 'Trebuchet MS', Tahoma, sans-serif; font-weight: bold; text-transform: uppercase; margin-top: -1px;">ONLINE SUPERSTORE</div>
+        </div>
+      </a>
+
+      <!-- SEARCH BAR -->
+      <form action="{{ url_for('home') }}" method="GET" style="flex: 1; min-width: 200px; max-width: 580px; display: flex; gap: 0;" role="search">
+        <input
+          type="search"
+          name="q"
+          value="{{ search_query if search_query else '' }}"
+          placeholder="Search for products, brands, and deals..."
+          aria-label="Search products"
+          class="input"
+          style="flex: 1; height: 36px; border-right: none; font-size: 13px;"
+          id="search-input">
+        <button type="submit" class="btn btn-blue" style="height: 36px; padding: 0 16px; border-left: none; border-radius: 0;" aria-label="Search">
+          🔍 GO
+        </button>
+      </form>
+
+      <!-- HEADER ACTIONS -->
+      <div style="display: flex; align-items: center; gap: 8px; margin-left: auto; flex-shrink: 0;">
+
+        <!-- Dark Mode Toggle -->
+        <button id="themeToggle" class="btn" style="padding: 5px 10px; font-size: 15px;" aria-label="Toggle dark mode" title="Toggle dark/light mode">
+          <span id="themeIcon">🌙</span>
+        </button>
+
+        {% if current_user.is_authenticated and current_user.id != 1 %}
+          <a href="{{ url_for('my_wishlist') }}" class="btn hide-mobile" style="text-decoration: none;" title="My Wishlist">❤️ Wishlist</a>
+          <a href="{{ url_for('view_cart') }}" class="btn btn-primary" style="text-decoration: none;" title="Shopping Cart">🛒 Cart</a>
+        {% endif %}
+
+        {% if current_user.is_authenticated %}
+          <!-- User Dropdown -->
+          <div style="position: relative;">
+            <button class="btn" id="userMenuBtn" onclick="toggleDropdown()" aria-haspopup="true" aria-expanded="false">
+              👤 {{ current_user.name.split()[0] }} ▾
+            </button>
+            <div class="dropdown-menu" id="userDropdown" role="menu">
+              <div class="titlebar" style="font-size: 11px; padding: 3px 8px;">
+                ACCOUNT MENU
+              </div>
+
+              {% if current_user.id == 1 %}
+                <a href="{{ url_for('admin_dashboard') }}" class="dropdown-item bold">📊 Dashboard</a>
+                <a href="{{ url_for('admin_orders') }}" class="dropdown-item">
+                  📦 Manage Orders
+                  {% if pending_orders_count > 0 %}
+                    <span class="badge badge-hot" style="font-size: 9px; padding: 1px 5px;">{{ pending_orders_count }}</span>
+                  {% endif %}
+                </a>
+                <a href="{{ url_for('admin_coupons') }}" class="dropdown-item">🏷️ Coupons</a>
+                <a href="{{ url_for('add_product') }}" class="dropdown-item">➕ Add Product</a>
+                <a href="{{ url_for('export_csv') }}" class="dropdown-item" style="color: var(--xp-lime); font-weight: bold;">📊 Export Sales CSV</a>
+                <div class="dropdown-divider"></div>
+              {% endif %}
+
+              {% if current_user.id != 1 %}
+                <a href="{{ url_for('profile') }}" class="dropdown-item">👤 My Account</a>
+                <a href="{{ url_for('my_orders') }}" class="dropdown-item">📄 My Orders</a>
+                <a href="{{ url_for('view_cart') }}" class="dropdown-item">🛒 View Cart</a>
+                <a href="{{ url_for('my_wishlist') }}" class="dropdown-item">❤️ My Wishlist</a>
+                <div class="dropdown-divider"></div>
+              {% endif %}
+
+              <a href="{{ url_for('logout') }}" class="dropdown-item danger">🚪 Logout</a>
+            </div>
+          </div>
+        {% else %}
+          <a href="{{ url_for('login') }}" class="btn btn-blue" style="text-decoration: none;">Sign In</a>
+          <a href="{{ url_for('register') }}" class="btn btn-primary" style="text-decoration: none;">Register</a>
+        {% endif %}
+
+        <!-- Mobile Hamburger -->
+        <button class="btn mobile-toggle" id="mobileMenuBtn" onclick="toggleMobileNav()" aria-label="Open menu" style="font-size: 18px; padding: 4px 10px;">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════
+       CATEGORY NAVIGATION BAR
+       ═══════════════════════════════════════════ -->
+  <nav style="background: var(--bg-dark); border-bottom: 2px solid var(--border-lo); overflow-x: auto;" aria-label="Category navigation">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 8px; display: flex; align-items: stretch; white-space: nowrap;">
+      <a href="{{ url_for('home') }}" class="nav-tab {% if request.endpoint == 'home' and not request.args.get('sort') %}active{% endif %}" style="text-decoration: none;">🏠 All Items</a>
+      <a href="{{ url_for('home', sort='newest') }}" class="nav-tab" style="text-decoration: none;">✨ New Arrivals</a>
+      <a href="{{ url_for('home', sort='price_low') }}" class="nav-tab" style="text-decoration: none;">💰 Best Value</a>
+      <a href="{{ url_for('home', sort='price_high') }}" class="nav-tab" style="text-decoration: none;">💎 Premium</a>
+      {% if current_user.is_authenticated and current_user.id != 1 %}
+        <a href="{{ url_for('my_wishlist') }}" class="nav-tab {% if request.endpoint == 'my_wishlist' %}active{% endif %}" style="text-decoration: none;">❤️ Wishlist</a>
+        <a href="{{ url_for('view_cart') }}" class="nav-tab {% if request.endpoint == 'view_cart' %}active{% endif %}" style="text-decoration: none;">🛒 Cart</a>
+      {% endif %}
+      <span style="flex: 1;"></span>
+      <span class="nav-tab" style="background: linear-gradient(to bottom, #E85D04 0%, #AA3800 100%); color: #fff; border-color: #FFA030 #882000 #882020 #FFA030; cursor: default; flex-shrink: 0;">
+        🔥 HOT DEALS
+      </span>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════
+       MOBILE NAV MENU
+       ═══════════════════════════════════════════ -->
+  <div id="mobile-nav" style="background: var(--bg-panel); border-bottom: 2px solid var(--border-lo); padding: 8px 12px;">
+    <div style="display: flex; flex-direction: column; gap: 5px;">
+      <a href="{{ url_for('home') }}" class="btn" style="text-decoration: none; text-align: left; justify-content: flex-start;">🏠 All Items</a>
+      {% if current_user.is_authenticated %}
+        {% if current_user.id != 1 %}
+          <a href="{{ url_for('view_cart') }}" class="btn" style="text-decoration: none; text-align: left; justify-content: flex-start;">🛒 Cart</a>
+          <a href="{{ url_for('my_wishlist') }}" class="btn" style="text-decoration: none; text-align: left; justify-content: flex-start;">❤️ Wishlist</a>
+          <a href="{{ url_for('my_orders') }}" class="btn" style="text-decoration: none; text-align: left; justify-content: flex-start;">📄 My Orders</a>
+          <a href="{{ url_for('profile') }}" class="btn" style="text-decoration: none; text-align: left; justify-content: flex-start;">👤 My Account</a>
+        {% else %}
+          <a href="{{ url_for('admin_dashboard') }}" class="btn" style="text-decoration: none; text-align: left; justify-content: flex-start;">📊 Dashboard</a>
+          <a href="{{ url_for('admin_orders') }}" class="btn" style="text-decoration: none; text-align: left; justify-content: flex-start;">📦 Manage Orders</a>
+        {% endif %}
+        <a href="{{ url_for('logout') }}" class="btn btn-danger" style="text-decoration: none; text-align: left; justify-content: flex-start;">🚪 Logout</a>
+      {% else %}
+        <a href="{{ url_for('login') }}" class="btn btn-blue" style="text-decoration: none; justify-content: flex-start;">Sign In</a>
+        <a href="{{ url_for('register') }}" class="btn btn-primary" style="text-decoration: none; justify-content: flex-start;">Register Free</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       MAIN CONTENT
+       ═══════════════════════════════════════════ -->
+  <main style="max-width: 1200px; margin: 0 auto; padding: 14px 12px 40px;" role="main">
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}" role="alert">
+            <span>
+              {% if category == 'success' %}✅{% elif category == 'danger' %}❌{% elif category == 'warning' %}⚠️{% else %}ℹ️{% endif %}
+              {{ message }}
+            </span>
+            <button onclick="this.parentElement.remove()" style="background: none; border: none; cursor: pointer; font-size: 14px; padding: 0 4px; color: inherit; opacity: 0.6; flex-shrink: 0;" aria-label="Close">✕</button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ═══════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════ -->
+  <footer id="main-footer" style="background: linear-gradient(to bottom, var(--bg-dark), var(--bg-inset)); border-top: 3px solid var(--border-lo);">
+
+    <!-- Footer Grid -->
+    <div style="max-width: 1200px; margin: 0 auto; padding: 20px 12px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px;">
+
+      <div>
+        <div class="section-head" style="font-size: 20px; margin-bottom: 10px;">QUICK LINKS</div>
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+          <a href="{{ url_for('home') }}" class="retro-link" style="font-size: 13px;">🏠 Home</a>
+          <a href="{{ url_for('home', sort='newest') }}" class="retro-link" style="font-size: 13px;">✨ New Arrivals</a>
+          <a href="{{ url_for('home', sort='price_low') }}" class="retro-link" style="font-size: 13px;">💰 Best Deals</a>
+          <a href="{{ url_for('home', sort='price_high') }}" class="retro-link" style="font-size: 13px;">💎 Premium</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-head" style="font-size: 20px; margin-bottom: 10px;">MY ACCOUNT</div>
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+          {% if current_user.is_authenticated %}
+            {% if current_user.id != 1 %}
+              <a href="{{ url_for('profile') }}" class="retro-link" style="font-size: 13px;">👤 My Profile</a>
+              <a href="{{ url_for('my_orders') }}" class="retro-link" style="font-size: 13px;">📄 My Orders</a>
+              <a href="{{ url_for('view_cart') }}" class="retro-link" style="font-size: 13px;">🛒 Shopping Cart</a>
+              <a href="{{ url_for('my_wishlist') }}" class="retro-link" style="font-size: 13px;">❤️ My Wishlist</a>
+            {% endif %}
+          {% else %}
+            <a href="{{ url_for('login') }}" class="retro-link" style="font-size: 13px;">Sign In</a>
+            <a href="{{ url_for('register') }}" class="retro-link" style="font-size: 13px;">Create Account</a>
+          {% endif %}
+        </div>
+      </div>
+
+      <div>
+        <div class="section-head" style="font-size: 20px; margin-bottom: 10px;">TRUST & SAFETY</div>
+        <div style="display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--text-muted);">
+          <span>🔒 SSL Encrypted Checkout</span>
+          <span>✅ 30-Day Easy Returns</span>
+          <span>📦 Tracked Shipping</span>
+          <span>💳 Secure Payments</span>
+          <span>🛡️ Buyer Protection</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-head" style="font-size: 20px; margin-bottom: 10px;">FAKE SHOP</div>
+        <div style="font-size: 12px; color: var(--text-muted); line-height: 1.9;">
+          <div>🛒 Your Online Superstore</div>
+          <div>Est. 1999 · Build 7.4.2</div>
+          <div style="margin-top: 6px; padding: 4px 8px; background: rgba(0,120,0,0.08); border: 1px solid #006600; color: var(--xp-lime); font-size: 11px; font-weight: bold;">
+            ● SITE STATUS: <span style="color: var(--sale);">ONLINE</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer Bottom Bar -->
+    <div style="background: linear-gradient(to bottom, #1858DC, #0A2888); color: #B0C8F0; text-align: center; padding: 8px 12px; font-size: 11px; border-top: 1px solid #0A1A60;">
+      © 1999–2026 The Fake Shop, Inc. All Rights Reserved.
+      &nbsp;|&nbsp; <a href="#" style="color: #88AAEE; text-decoration: underline;">Privacy</a>
+      &nbsp;|&nbsp; <a href="#" style="color: #88AAEE; text-decoration: underline;">Terms</a>
+      &nbsp;|&nbsp; <a href="#" style="color: #88AAEE; text-decoration: underline;">Contact</a>
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════
+       AGE VERIFICATION MODAL (Windows XP Style)
+       ═══════════════════════════════════════════ -->
+  <div id="ageModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 9000; align-items: center; justify-content: center;" role="dialog" aria-modal="true" aria-labelledby="ageModalTitle">
+    <div style="width: 440px; max-width: 96vw; background: var(--bg-panel); border: 2px solid; border-color: var(--border-hi) var(--border-lo) var(--border-lo) var(--border-hi); box-shadow: 5px 5px 0 var(--border-edge);">
+      <div class="titlebar">
+        <span>⚠️</span>
+        <span id="ageModalTitle">Age Verification Required</span>
+        <button class="titlebar-close" id="ageExitBtn" aria-label="Exit">✕</button>
+      </div>
+      <div style="padding: 24px; text-align: center;">
+        <div style="font-size: 52px; margin-bottom: 14px; line-height: 1;">🔞</div>
+        <p style="font-size: 15px; font-weight: bold; margin-bottom: 8px; color: var(--text);">This website contains adult content.</p>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 22px;">You must be at least <strong>18 years old</strong> to enter. By clicking below you confirm your age.</p>
+        <hr class="divider">
+        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 16px;">
+          <button class="btn btn-blue btn-lg" id="ageYesBtn">✅ I am 18 or older — Enter</button>
+          <button class="btn btn-lg" id="ageNoBtn">✕ Exit Site</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SCRIPTS
+       ═══════════════════════════════════════════ -->
+  <script>
+    // ── THEME ──────────────────────────────────
+    const html = document.documentElement;
+    const themeIcon = document.getElementById('themeIcon');
+    const footer = document.getElementById('main-footer');
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        html.classList.add('dark');
+        if (themeIcon) themeIcon.textContent = '☀️';
+        if (footer) footer.style.background = 'linear-gradient(to bottom, #0A0E18, #050810)';
+      } else {
+        html.classList.remove('dark');
+        if (themeIcon) themeIcon.textContent = '🌙';
+        if (footer) footer.style.background = '';
+      }
+      localStorage.setItem('retro-theme', theme);
+    }
+
+    // Apply saved theme immediately
+    applyTheme(localStorage.getItem('retro-theme') || 'light');
+
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      applyTheme(html.classList.contains('dark') ? 'light' : 'dark');
+    });
+
+    // ── DROPDOWN ───────────────────────────────
+    function toggleDropdown() {
+      const menu = document.getElementById('userDropdown');
+      if (menu) menu.classList.toggle('open');
+      const btn = document.getElementById('userMenuBtn');
+      if (btn) btn.setAttribute('aria-expanded', menu.classList.contains('open'));
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#userMenuBtn') && !e.target.closest('#userDropdown')) {
+        const menu = document.getElementById('userDropdown');
+        if (menu) menu.classList.remove('open');
+      }
+    });
+
+    // ── MOBILE NAVIGATION ──────────────────────
+    function toggleMobileNav() {
+      const nav = document.getElementById('mobile-nav');
+      if (nav) nav.classList.toggle('open');
+    }
+
+    // ── AGE VERIFICATION ───────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      const verified = localStorage.getItem('ageVerified');
+      const modal    = document.getElementById('ageModal');
+
+      if (verified !== 'true' && modal) {
+        modal.style.display = 'flex';
+
+        document.getElementById('ageYesBtn').addEventListener('click', () => {
+          localStorage.setItem('ageVerified', 'true');
+          modal.style.display = 'none';
+        });
+
+        function exitSite() { window.location.href = 'https://www.google.com'; }
+        document.getElementById('ageNoBtn').addEventListener('click', exitSite);
+        document.getElementById('ageExitBtn').addEventListener('click', exitSite);
+      }
+    });
+  </script>
+
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

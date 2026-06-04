@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Reset Password{% endblock %}
+
+{% block content %}
+
+<div style="max-width: 440px; margin: 40px auto;">
+
+  <div class="panel" style="padding: 0;">
+    <div class="titlebar">🔑 Reset Your Password</div>
+    <div style="padding: 24px;">
+
+      <div style="text-align: center; margin-bottom: 20px;">
+        <div style="font-size: 48px; line-height: 1; margin-bottom: 10px;">🔓</div>
+        <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+          Enter your account email address below. We'll send you a link to reset your password.
+        </p>
+      </div>
+
+      <form method="POST">
+        <div class="form-group">
+          <label class="form-label" for="email">📧 Account Email</label>
+          <input type="email" name="email" id="email" class="input" required autocomplete="email" placeholder="your@email.com">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg btn-full" style="margin-top: 6px;">
+          📨 Send Reset Link
+        </button>
+      </form>
+
+      <hr class="divider" style="margin: 18px 0;">
+
+      <div style="text-align: center; font-size: 13px; color: var(--text-muted);">
+        Remember your password?
+        <a href="{{ url_for('login') }}" class="retro-link" style="font-weight: bold;"> Sign in →</a>
+      </div>
+    </div>
+
+    <div style="padding: 4px 10px; background: var(--bg-dark); border-top: 1px solid var(--border-lo); font-size: 11px; color: var(--text-muted);">
+      <span style="color: var(--xp-lime);">●</span> Password reset emails are sent from noreply@fakeshop.com
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

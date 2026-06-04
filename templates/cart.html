@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping Cart{% endblock %}
+
+{% block content %}
+
+<div class="section-head" style="margin-bottom: 14px;">🛒 Your Shopping Cart</div>
+
+{% if cart_items %}
+
+<div style="display: grid; grid-template-columns: 1fr 340px; gap: 16px; align-items: start;" id="cart-layout">
+
+  <!-- ── CART ITEMS TABLE ──────────────────── -->
+  <div class="panel" style="padding: 0;">
+    <div class="titlebar">📦 Cart Items ({{ cart_items|length }} item{% if cart_items|length != 1 %}s{% endif %})</div>
+
+    <table class="retro-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th style="text-align: right;">Unit Price</th>
+          <th style="text-align: center;">Qty</th>
+          <th style="text-align: right;">Subtotal</th>
+          <th style="text-align: center;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cart_items %}
+        <tr>
+          <td>
+            <div style="font-weight: bold; font-size: 13px; color: var(--link);">{{ item.title }}</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Product #{{ item.id }}</div>
+          </td>
+          <td style="text-align: right;">
+            <span style="font-family: 'Courier New', monospace; font-weight: bold; color: var(--text);">${{ "%.2f"|format(item.price / 100) }}</span>
+          </td>
+          <td style="text-align: center;">
+            <div style="display: inline-flex; align-items: center; gap: 0; border: 1px solid var(--border-lo); background: var(--bg-panel);">
+              <span style="padding: 3px 10px; font-family: 'Courier New', monospace; font-weight: bold; font-size: 14px; min-width: 36px; text-align: center; border-right: 1px solid var(--border-lo); border-left: 1px solid var(--border-lo);">{{ item.quantity }}</span>
+            </div>
+          </td>
+          <td style="text-align: right;">
+            <span class="price" style="font-size: 15px;">${{ "%.2f"|format(item.subtotal / 100) }}</span>
+          </td>
+          <td style="text-align: center;">
+            <a href="{{ url_for('remove_from_cart', product_id=item.id) }}" class="btn btn-danger btn-sm" style="text-decoration: none;" onclick="return confirm('Remove this item from cart?');" title="Remove item">
+              🗑️ Remove
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Cart Footer -->
+    <div style="padding: 10px 12px; border-top: 2px solid var(--border-lo); background: var(--bg-dark); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+      <a href="{{ url_for('home') }}" class="btn" style="text-decoration: none;">← Continue Shopping</a>
+      <div style="font-size: 12px; color: var(--text-muted);">
+        Subtotal before discounts:
+        <strong style="font-family: 'Courier New'; color: var(--text); font-size: 14px;">${{ "%.2f"|format(grand_total / 100) }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ORDER SUMMARY SIDEBAR ─────────────── -->
+  <div style="display: flex; flex-direction: column; gap: 12px; position: sticky; top: 10px;">
+
+    <!-- Promo Code -->
+    <div class="panel" style="padding: 0;">
+      <div class="titlebar" style="font-size: 11px;">🏷️ Promo Code</div>
+      <div style="padding: 12px;">
+        <form action="{{ url_for('apply_coupon') }}" method="POST" style="display: flex; flex-direction: column; gap: 8px;">
+          <input
+            type="text"
+            name="code"
+            class="input"
+            placeholder="Enter code (e.g. SAVE20)"
+            style="font-size: 13px; text-transform: uppercase; letter-spacing: 1px;"
+            value="{{ session.get('coupon_code', '') }}">
+          <button type="submit" class="btn btn-blue btn-full">Apply Code ▶</button>
+        </form>
+
+        {% if session.get('coupon_code') %}
+        <div style="margin-top: 10px; padding: 8px 10px; background: rgba(0,140,0,0.08); border: 1px solid #006600; display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+          <span style="font-size: 12px; color: var(--xp-lime); font-weight: bold;">
+            ✅ Applied: <code style="letter-spacing: 1px;">{{ session['coupon_code'] }}</code>
+          </span>
+          <span class="badge badge-sale">-{{ session['coupon_percent'] }}%</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Order Total -->
+    <div class="panel" style="padding: 0;">
+      <div class="titlebar">💰 Order Summary</div>
+      <div style="padding: 12px;">
+        <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 5px 0; color: var(--text-muted);">Items ({{ cart_items|length }}):</td>
+            <td style="text-align: right; font-family: 'Courier New'; padding: 5px 0;">${{ "%.2f"|format(grand_total / 100) }}</td>
+          </tr>
+          <tr>
+            <td style="padding: 5px 0; color: var(--text-muted);">Shipping:</td>
+            <td style="text-align: right; color: var(--xp-lime); font-weight: bold; padding: 5px 0;">
+              {% if shipping_cost == 0 %}FREE{% else %}${{ "%.2f"|format(shipping_cost / 100) }}{% endif %}
+            </td>
+          </tr>
+          {% if session.get('coupon_percent') %}
+          <tr>
+            <td style="padding: 5px 0; color: var(--xp-lime);">Discount ({{ session['coupon_percent'] }}%):</td>
+            <td style="text-align: right; color: var(--xp-lime); font-weight: bold; padding: 5px 0;">
+              -${{ "%.2f"|format((grand_total * session['coupon_percent'] / 100) / 100) }}
+            </td>
+          </tr>
+          {% endif %}
+          <tr>
+            <td colspan="2"><hr class="divider" style="margin: 6px 0;"></td>
+          </tr>
+          <tr>
+            <td style="padding: 5px 0; font-weight: bold; font-size: 15px;">ORDER TOTAL:</td>
+            <td style="text-align: right;">
+              <span class="price" style="font-size: 22px;">${{ "%.2f"|format(order_total / 100) }}</span>
+            </td>
+          </tr>
+        </table>
+
+        <a href="{{ url_for('checkout') }}" class="btn btn-primary btn-lg btn-full" style="text-decoration: none; margin-top: 14px; font-size: 16px; justify-content: center;">
+          🔒 Proceed to Checkout →
+        </a>
+
+        <div style="margin-top: 10px; text-align: center; font-size: 11px; color: var(--text-muted); line-height: 1.8;">
+          🔒 SSL Encrypted &nbsp;·&nbsp; ✅ 30-Day Returns<br>
+          💳 Secure Payment Processing
+        </div>
+      </div>
+    </div>
+
+    <!-- Trust Badges -->
+    <div class="panel" style="padding: 10px 12px; background: var(--bg-dark);">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; text-align: center;">
+        <div style="padding: 6px; border: 1px solid var(--border-lo); font-size: 11px; color: var(--text-muted);">
+          🔒<br><strong>Secure</strong>
+        </div>
+        <div style="padding: 6px; border: 1px solid var(--border-lo); font-size: 11px; color: var(--text-muted);">
+          🚚<br><strong>Fast Ship</strong>
+        </div>
+        <div style="padding: 6px; border: 1px solid var(--border-lo); font-size: 11px; color: var(--text-muted);">
+          ↩️<br><strong>30-Day Return</strong>
+        </div>
+        <div style="padding: 6px; border: 1px solid var(--border-lo); font-size: 11px; color: var(--text-muted);">
+          ⭐<br><strong>Best Price</strong>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% else %}
+<!-- ─── EMPTY CART ──────────────────────────── -->
+<div class="panel" style="text-align: center; padding: 60px 20px; margin-top: 10px;">
+  <div style="font-size: 64px; margin-bottom: 12px; line-height: 1;">🛒</div>
+  <h2 style="font-family: 'VT323', monospace; font-size: 36px; margin-bottom: 8px;">Your Cart is Empty!</h2>
+  <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Looks like you haven't added anything yet. Browse our shop for great deals!</p>
+  <a href="{{ url_for('home') }}" class="btn btn-primary btn-lg" style="text-decoration: none;">🛍️ Start Shopping</a>
+</div>
+{% endif %}
+
+<style>
+  @media (max-width: 768px) {
+    #cart-layout { grid-template-columns: 1fr !important; }
+    .retro-table th:nth-child(3),
+    .retro-table td:nth-child(3) { display: none; }
+  }
+</style>
+
+{% endblock %}

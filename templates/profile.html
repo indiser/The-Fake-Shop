@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}My Account{% endblock %}
+
+{% block content %}
+
+<div style="max-width: 560px; margin: 20px auto;">
+
+  <div class="section-head" style="margin-bottom: 14px;">👤 My Account Settings</div>
+
+  <div style="display: flex; flex-direction: column; gap: 14px;">
+
+    <!-- Account Settings Panel -->
+    <div class="panel" style="padding: 0;">
+      <div class="titlebar">✏️ Edit Profile Information</div>
+      <div style="padding: 20px;">
+        <form method="POST" novalidate onclick="">
+          {{ form.hidden_tag() }}
+
+          <div class="form-group">
+            <label class="form-label" for="name">👤 Full Name</label>
+            {{ form.name(class="input", id="name", autocomplete="name") }}
+            {% for error in form.name.errors %}
+              <div style="color: var(--price); font-size: 12px; margin-top: 3px;">⚠️ {{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="email">📧 Email Address</label>
+            {{ form.email(class="input", id="email", autocomplete="email") }}
+            {% for error in form.email.errors %}
+              <div style="color: var(--price); font-size: 12px; margin-top: 3px;">⚠️ {{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <hr class="divider" style="margin: 16px 0;">
+
+          <div class="form-group">
+            <label class="form-label" for="password">🔑 Change Password</label>
+            {{ form.password(class="input", id="password", placeholder="Leave blank to keep current password", autocomplete="new-password") }}
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">Leave blank if you don't want to change your password.</div>
+            {% for error in form.password.errors %}
+              <div style="color: var(--price); font-size: 12px; margin-top: 3px;">⚠️ {{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg btn-full" onclick="return confirm('Save changes to your profile?');">
+            💾 Save Changes
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="panel" style="padding: 0;">
+      <div class="titlebar" style="font-size: 11px;">⚡ Quick Links</div>
+      <div style="padding: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+        <a href="{{ url_for('my_orders') }}" class="btn" style="text-decoration: none; flex: 1;">📄 View My Orders</a>
+        <a href="{{ url_for('my_wishlist') }}" class="btn" style="text-decoration: none; flex: 1;">❤️ My Wishlist</a>
+        <a href="{{ url_for('view_cart') }}" class="btn" style="text-decoration: none; flex: 1;">🛒 Shopping Cart</a>
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="panel" style="padding: 0; border-color: #CC0000 var(--border-lo) var(--border-lo) #CC0000;">
+      <div class="titlebar" style="background: linear-gradient(to right, #800000, #CC2200);">
+        ⚠️ Danger Zone
+      </div>
+      <div style="padding: 16px;">
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+          Once you delete your account, all your data will be permanently removed. This action cannot be undone.
+        </p>
+        <a href="{{ url_for('delete_account') }}"
+           class="btn btn-danger"
+           style="text-decoration: none;"
+           onclick="return confirm('Are you absolutely sure? This will permanently delete your account and all order history. This CANNOT be undone.');">
+          🗑️ Delete My Account
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

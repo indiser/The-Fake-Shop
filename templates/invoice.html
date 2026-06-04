@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice #{{ order.id }} — The Fake Shop</title>
+  <style>
+    /* xhtml2pdf-compatible CSS:
+      - No CSS variables
+      - No flexbox or grid
+      - Heavy use of tables for layout
+    */
+    body {
+      font-family: Helvetica, Arial, sans-serif;
+      color: #1A1209;
+      font-size: 12px;
+    }
+
+    .invoice-paper {
+      width: 100%;
+      padding: 20px;
+    }
+
+    /* Header using a layout table */
+    table.header-layout {
+      width: 100%;
+      background-color: #1858DC;
+      color: #ffffff;
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+    table.header-layout td { border: none; vertical-align: middle; }
+    
+    .inv-logo { font-size: 24px; font-weight: bold; letter-spacing: 1px; }
+    .inv-logo-sub { font-size: 9px; color: #C0D0F0; letter-spacing: 2px; }
+    .inv-title h1 { font-size: 28px; margin: 0; text-align: right; }
+    .inv-title p { font-size: 11px; color: #C0D0F0; margin: 0; text-align: right; }
+
+    /* Meta Info using a layout table */
+    table.meta-layout {
+      width: 100%;
+      border-bottom: 2px solid #808080;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+    }
+    table.meta-layout td {
+      width: 33%;
+      vertical-align: top;
+      border: none;
+    }
+    
+    .meta-block h3 {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #555544;
+      border-bottom: 1px solid #dddddd;
+      margin-bottom: 5px;
+      padding-bottom: 2px;
+    }
+    .meta-block p {
+      font-size: 12px;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    /* Items Table */
+    table.inv-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    table.inv-table th {
+      background-color: #3878EC;
+      color: #ffffff;
+      padding: 8px;
+      text-align: left;
+      font-size: 12px;
+    }
+    table.inv-table td {
+      padding: 8px;
+      border: 1px solid #D4D0C8;
+      font-size: 12px;
+    }
+    
+    /* Alternating rows for xhtml2pdf */
+    .row-odd { background-color: #F8F5EC; }
+    .row-even { background-color: #EEEADC; }
+
+    /* Total Box aligned to right */
+    table.total-box {
+      width: 250px;
+      border: 2px solid #808080;
+      border-collapse: collapse;
+    }
+    table.total-box td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #D4D0C8;
+    }
+    .total-row {
+      background-color: #1858DC;
+      color: #ffffff;
+      font-weight: bold;
+    }
+
+    /* Footer */
+    .inv-footer {
+      text-align: center;
+      color: #555544;
+      font-size: 10px;
+      margin-top: 40px;
+      border-top: 1px solid #D4D0C8;
+      padding-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="invoice-paper">
+
+  <table class="header-layout">
+    <tr>
+      <td>
+        <div class="inv-logo">🛒 FAKE SHOP</div>
+        <div class="inv-logo-sub">ONLINE SUPERSTORE</div>
+      </td>
+      <td>
+        <div class="inv-title">
+          <h1>INVOICE</h1>
+          <p>Order Confirmation</p>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <table class="meta-layout">
+    <tr>
+      <td>
+        <div class="meta-block">
+          <h3>🏪 From</h3>
+          <p>
+            <strong>The Fake Shop, Inc.</strong><br>
+            123 Internet Avenue<br>
+            Cyberspace, Web 00001<br>
+            support@fakeshop.com
+          </p>
+        </div>
+      </td>
+      <td>
+        <div class="meta-block">
+          <h3>👤 Bill To</h3>
+          <p>
+            <strong>{{ user.name }}</strong><br>
+            {{ user.email }}
+          </p>
+        </div>
+      </td>
+      <td>
+        <div class="meta-block">
+          <h3>📄 Details</h3>
+          <p>
+            <strong>Invoice #:</strong> {{ order.id }}<br>
+            <strong>Date:</strong> {{ order.date }}<br>
+            <strong>Status:</strong> {{ order.status }}
+          </p>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <table class="inv-table">
+    <thead>
+      <tr>
+        <th style="width: 5%;">#</th>
+        <th style="width: 50%;">Item Description</th>
+        <th style="width: 10%; text-align: center;">Qty</th>
+        <th style="width: 15%; text-align: right;">Unit Price</th>
+        <th style="width: 20%; text-align: right;">Line Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in order.items %}
+      <tr class="{% if loop.index % 2 == 0 %}row-even{% else %}row-odd{% endif %}">
+        <td style="color: #808080;">{{ loop.index }}</td>
+        <td>{{ item.product.title }}</td>
+        <td style="text-align: center; font-weight: bold;">{{ item.quantity }}</td>
+        <td style="text-align: right;">${{ "%.2f" % (item.price_at_purchase / 100) }}</td>
+        <td style="text-align: right; font-weight: bold;">${{ "%.2f" % ((item.price_at_purchase * item.quantity) / 100) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div style="text-align: right;">
+    <table class="total-box" align="right">
+      <tr>
+        <td style="text-align: left;">Subtotal:</td>
+        <td style="text-align: right;">${{ "%.2f" % (order.total_price / 100) }}</td>
+      </tr>
+      <tr>
+        <td style="text-align: left;">Shipping:</td>
+        <td style="text-align: right; color: #006600; font-weight: bold;">
+          {% if order.total_price >= 5000 %}FREE{% else %}$4.99{% endif %}
+        </td>
+      </tr>
+      <tr class="total-row">
+        <td style="text-align: left;">GRAND TOTAL:</td>
+        <td style="text-align: right;">${{ "%.2f" % (order.total_price / 100) }}</td>
+      </tr>
+    </table>
+  </div>
+  <div style="clear: both;"></div>
+
+  <div class="inv-footer">
+    Thank you for shopping at The Fake Shop! &nbsp;·&nbsp; Questions? Contact support@fakeshop.com<br>
+    © 1999–2026 The Fake Shop, Inc. All Rights Reserved.
+  </div>
+
+</div>
+
+</body>
+</html>
