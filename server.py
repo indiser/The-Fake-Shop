@@ -469,7 +469,7 @@ def home():
             db.session.commit()
     
     if search_query:
-        stmt = db.select(Product).where(Product.title.like(f'%{search_query}%'))
+        stmt = db.select(Product).where(Product.title.ilike(f'%{search_query}%'))
     else:
         stmt = db.select(Product)
     
