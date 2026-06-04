@@ -8,8 +8,7 @@ import json
 from time import sleep
 from flask import make_response
 from datetime import datetime
-from flask import Flask,render_template,request,session,url_for,redirect,flash,get_flashed_messages,abort
-from flask import Flask
+from flask import Flask,render_template,request,session,url_for,redirect,flash,get_flashed_messages,abort, send_file
 from email_validator import validate_email, EmailNotValidError
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
@@ -439,6 +438,15 @@ def home():
     search_query = request.args.get('q', '')
     sort_option = request.args.get('sort', '')
     per_page = 12
+
+    now = datetime.now()
+    show_promo = 1 <= now.day <= 15
+    promo_end_time = ""
+    
+    if show_promo:
+        # Calculate the exact millisecond the promo ends (15th at 23:59:59)
+        promo_end_date = now.replace(day=15, hour=23, minute=59, second=59)
+        promo_end_time = promo_end_date.isoformat()
     
     # --- NEW: THE SPY LOGIC ---
     if search_query:
@@ -477,7 +485,8 @@ def home():
         stmt = stmt.order_by(Product.title)
     
     pagination = db.paginate(stmt, page=page, per_page=per_page, error_out=False)
-    return render_template("index.html", pagination=pagination, current_sort=sort_option, search_query=search_query)
+    return render_template("index.html", pagination=pagination, current_sort=sort_option, search_query=search_query, show_promo=show_promo,
+                           promo_end_time=promo_end_time)
 
 # @app.route('/add_deleted_flag')
 # def add_deleted_flag():
@@ -744,6 +753,39 @@ def my_orders():
     orders = current_user.orders 
     return render_template('my_orders.html', orders=orders)
 
+@app.route('/invoice/<int:order_id>')
+@login_required
+def invoice(order_id):
+    # 1. Fetch the order
+    order = db.get_or_404(Order, order_id)
+    
+    # 2. Security Check (IDOR Prevention)
+    if order.user_id != current_user.id and current_user.id != 1:
+        flash("Unauthorized access. You can only view your own invoices.", "danger")
+        return redirect(url_for('home'))
+        
+    # 3. Render the HTML string
+    html_content = render_template('invoice.html', order=order, user=order.customer)
+    
+    # 4. Generate the PDF in memory
+    pdf_buffer = BytesIO()
+    pisa_status = pisa.CreatePDF(html_content, dest=pdf_buffer)
+    
+    if pisa_status.err:
+        flash("Failed to generate PDF invoice.", "danger")
+        return redirect(url_for('my_orders'))
+        
+    # 5. Rewind the buffer to the beginning so it can be read
+    pdf_buffer.seek(0)
+    
+    # 6. Force the browser to download it as a file
+    return send_file(
+        pdf_buffer, 
+        as_attachment=True, 
+        download_name=f"Invoice_{order.id}.pdf", 
+        mimetype='application/pdf'
+    )
+
 #Seeing product detail
 @app.route('/product/<int:product_id>',methods=["GET","POST"])
 def product_detail(product_id):
@@ -860,7 +902,9 @@ def view_cart():
                 'quantity':quantity,
                 'subtotal':subtotal
             })
-    return render_template('cart.html', cart_items=cart_items, grand_total=grand_total)
+    shipping_cost = 0 if grand_total >= 5000 or grand_total == 0 else 499
+    order_total = grand_total + shipping_cost
+    return render_template('cart.html', cart_items=cart_items, grand_total=grand_total,shipping_cost=shipping_cost,order_total=order_total)
 
 #Delete product for admin only
 @app.route('/delete-product/<int:product_id>')
@@ -956,15 +1000,17 @@ def checkout():
             if prod:
                 raw_total += (prod.price * qty)
                 temp_items.append({'product': prod, 'qty': qty})
+
+    shipping_cost = 0 if raw_total >= 5000 else 499
+
     # --- 2. Apply Discount ---
     discount_percent = session.get('coupon_percent', 0)
     discount_amount = 0
-    
     if discount_percent > 0:
         # Math: (Total * Percent) / 100
         discount_amount = int(raw_total * (discount_percent / 100))
     
-    final_total = raw_total - discount_amount
+    final_total = raw_total - discount_amount + shipping_cost
 
     # 2. Create the Order Record (Hardcoded to User #1 for now)
     new_order = Order(user_id=current_user.id, date=datetime.now().strftime("%Y-%m-%d"), total_price=final_total,discount_amount=discount_amount)
@@ -1236,6 +1282,38 @@ def cancel_order(order_id):
         flash("Could not cancel order. Error: " + str(e), "danger")
 
     return redirect(url_for('my_orders'))
+
+@app.route('/admin/cancel-order/<int:order_id>')
+@admin_only
+def admin_cancel_order(order_id):
+    order = db.get_or_404(Order, order_id)
+    
+    # 1. State Machine Checks
+    if order.status == 'Shipped':
+        flash(f"Cannot cancel Order #{order.id}. It has already been shipped.", "warning")
+        return redirect(url_for('admin_orders'))
+        
+    if order.status == 'Cancelled':
+        flash(f"Order #{order.id} is already cancelled.", "info")
+        return redirect(url_for('admin_orders'))
+
+    # 2. Admin Override Execution
+    try:
+        order.status = "Cancelled"
+        db.session.commit()
+        
+        # 3. Customer Communication
+        if order.customer:
+            send_cancel_email(order.customer, order.id, order.total_price)
+            flash(f"Order #{order.id} forcibly cancelled. Notification sent to customer.", "success")
+        else:
+            flash(f"Order #{order.id} forcibly cancelled. (Ghost user, no email sent).", "warning")
+            
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Critical error cancelling order: {e}", "danger")
+
+    return redirect(url_for('admin_orders'))
 
 if __name__=="__main__":
     app.run(debug=True)
